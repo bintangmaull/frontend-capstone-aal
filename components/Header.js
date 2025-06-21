@@ -37,7 +37,7 @@ export default function Header() {
                 : 'text-gray-200 hover:bg-[#C6FF00] hover:text-black'}
             `}
           >
-            Kalkulasi
+            Hasil Kalkulasi
           </button>
           <button
             onClick={() => router.push('/data')}

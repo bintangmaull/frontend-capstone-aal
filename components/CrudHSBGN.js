@@ -90,7 +90,7 @@ export default function CrudHSBGN() {
             <tr>
               <th className="p-2 text-justify">Kota</th>
               <th className="p-2 text-justify">Provinsi</th>
-              <th className="p-2 text-right whitespace-nowrap">Nilai HSBGN</th>
+              <th className="p-2 text-center whitespace-nowrap">Nilai HSBGN</th>
               <th className="p-2 text-center">Aksi</th>
             </tr>
           </thead>
@@ -99,8 +99,8 @@ export default function CrudHSBGN() {
               <tr key={r.id_kota}>
                 <td className="p-2 text-white">{r.kota}</td>
                 <td className="p-2 text-white">{r.provinsi}</td>
-                <td className="p-2 text-white">Rp {Number(r.hsbgn).toLocaleString('id-ID')}</td>
-                <td className="p-2 text-white">
+                <td className="p-2 text-white text-center">Rp {Number(r.hsbgn).toLocaleString('id-ID')}</td>
+                <td className="p-2 text-white text-right">
                   <Button
                     onClick={() => onEditClick(r)}
                     className="text-blue-600 hover:underline p-0"
