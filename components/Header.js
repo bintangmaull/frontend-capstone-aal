@@ -62,6 +62,7 @@ export default function Header() {
           {[
             { path: '/', label: 'Home' },
             { path: '/peta', label: 'Our Product' },
+            { path: '/others', label: 'Others Product' },
             { path: '/about', label: 'About Us' }
           ].map((item) => (
             <button
@@ -140,6 +141,7 @@ export default function Header() {
             {[
               { path: '/', label: 'Home' },
               { path: '/peta', label: 'Our Product' },
+              { path: '/others', label: 'Others Product' },
               { path: '/about', label: 'About Us' }
             ].map((item) => (
               <button

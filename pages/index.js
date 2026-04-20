@@ -78,6 +78,16 @@ export default function Home() {
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </button>
             <button
+              onClick={() => router.push('/others')}
+              className={`flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-base border transition-all transform hover:scale-105 active:scale-95 ${darkMode
+                  ? 'bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20'
+                  : 'bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-100 shadow-lg'
+                }`}
+            >
+              <MapIcon size={20} />
+              Others Product
+            </button>
+            <button
               onClick={() => router.push('/about')}
               className={`flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-base border transition-all transform hover:scale-105 active:scale-95 ${darkMode
                   ? 'bg-white/5 border-white/10 text-white hover:bg-white/10'

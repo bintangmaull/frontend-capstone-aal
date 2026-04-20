@@ -1,0 +1,8 @@
+No.,Data,Penggunaan
+1,Peraturan BNPB No. 7/2008 (Tata Cara Pemberian Bantuan Pemenuhan Kebutuhan Dasar),Menyediakan standar untuk kebutuhan harian minimum per orang selama evakuasi.
+2,"Harga pasar kebutuhan pokok
+1. Konsumsi makanan: 400 g beras per orang per hari (IDR 4,737.6 / USD 0.284256) dan 2 kali makan per orang per hari (IDR 15,000 / USD 0.9 per makan);
+2. Kebutuhan sanitasi: 200 g sabun cuci pakaian IDR 5,175 per orang (USD 0.3105) dan 250 g sabun mandi IDR 17,500 per orang (USD 1.05)
+3. Air minum: 2.5 liter per orang, IDR 14,200 (USD 0.852)
+4. Air bersih: IDR 10,710 per m³, setara dengan IDR 10.71 (USD 0.00064) per liter",Mengonversi kuantitas kebutuhan dasar menjadi biaya evakuasi.
+3,Lokasi penampungan dan jumlah pengungsi (orang),Merepresentasikan populasi yang terpapar dan menyesuaikan biaya evakuasi per unit dengan biaya evakuasi di tingkat tempat penampungan dan total biaya evakuasi.

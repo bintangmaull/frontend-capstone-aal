@@ -3,7 +3,7 @@ import { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import Script from 'next/script'
 import L from 'leaflet'
-import { ChevronRight, Layers, Database, Building2, Activity, Info, X } from 'lucide-react'
+import { ChevronRight, Layers, Database, Building2, Activity, Info, X, Calendar, Shield } from 'lucide-react'
 import 'leaflet/dist/leaflet.css'
 // Note: markercluster CSS and JS will be handled via CDN for simplicity or if normally installed
 import LayerServices from './LayerServices'
@@ -296,8 +296,18 @@ export default function CogHazardMap() {
 
   // ── Flood Sawah Direct Loss States ───────────────────────────────────────────
   const [floodSawahData, setFloodSawahData] = useState(null)  // from /api/flood-sawah-loss
+  const [floodSawahScheme, setFloodSawahScheme] = useState('1');
+  const [openSettings, setOpenSettings] = useState(null) // 'basemap' | 'hazard' | 'aal' | 'sawah' | null
   const [floodView, setFloodView] = useState('building')      // 'building' | 'sawah'
   const [floodSawahYear, setFloodSawahYear] = useState('loss_2022')
+  const [floodAalYear, setFloodAalYear] = useState('2022')
+  const [floodAalCC, setFloodAalCC] = useState('ncc')
+  const [boundaryDataAAL, setBoundaryDataAAL] = useState(null)
+  const [boundaryDataDL, setBoundaryDataDL] = useState(null)
+  const [droughtAalData, setDroughtAalData] = useState(null)
+  const [droughtAalYear, setDroughtAalYear] = useState('2022')
+  const [droughtAalCC, setDroughtAalCC] = useState('ncc')
+  const [activeAalExposure, setActiveAalExposure] = useState('total')
 
   // Click/Selection State for Legend
   const [selectedData, setSelectedData] = useState({ intensity: null, damageRatio: null })
@@ -318,8 +328,6 @@ export default function CogHazardMap() {
   const [selectedGroup, setSelectedGroup] = useState(null)
   const [selectedRpId, setSelectedRpId] = useState('')
   const [exposureData, setExposureData] = useState(null)
-  const [boundaryDataAAL, setBoundaryDataAAL] = useState(null)
-  const [boundaryDataDL, setBoundaryDataDL] = useState(null)
   const [loading, setLoading] = useState(false)
   const [fetchingMeta, setFetchingMeta] = useState(false)
   const [error, setError] = useState('')
@@ -384,7 +392,7 @@ export default function CogHazardMap() {
 
   const handlePointerDown = (e) => {
     // Only drag on the header area or panel itself, not on close button
-    if (e.target.closest('.close-btn')) return;
+    if (e.target.closest('.close-btn') || e.target.closest('.no-drag')) return;
     setIsDragging(true)
     dragStartPos.current = { x: e.clientX - panelPos.x, y: e.clientY - panelPos.y }
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -415,9 +423,6 @@ export default function CogHazardMap() {
   // Selected City State (boundary click)
   const [selectedCityFeature, setSelectedCityFeature] = useState(null)
 
-  // Dedicated AAL Exposure State (decoupled from the point layer checkboxes)
-  const [activeAalExposure, setActiveAalExposure] = useState('total')
-  
   // Track which cities have been targetedly refreshed to ensure we trust their live point counts
   const [refreshedCities, setRefreshedCities] = useState(new Set());
 
@@ -926,11 +931,11 @@ export default function CogHazardMap() {
 
   // ── Fetch Flood Sawah Loss Data ───────────────────────────────────────────────
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/flood-sawah-loss`)
+    fetch(`${BACKEND_URL}/api/flood-sawah-loss?scheme=${floodSawahScheme || '1'}`)
       .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then(data => setFloodSawahData(data))
       .catch(e => console.warn('Flood sawah loss fetch failed:', e.message))
-  }, [dataVersion])
+  }, [dataVersion, floodSawahScheme])
 
   // ── Fetch Disaster Curves ────────────────────────────────────────────────────
   useEffect(() => {
@@ -1113,6 +1118,94 @@ export default function CogHazardMap() {
     fetchBoundaries()
   }, [dataVersion]) // Only re-fetch manually on dataVersion update to prevent loop
 
+  // ── Fetch Drought AAL Data (Map Choropleth) ──────────────────────────────────
+  useEffect(() => {
+    if (selectedGroup !== 'kekeringan' || !infraLayers.aal) return
+
+    const fetchDroughtAAL = async () => {
+      setLoading(true)
+      setError('')
+      try {
+        const url = `${BACKEND_URL}/api/aal-drought?year=${droughtAalYear}&cc=${droughtAalCC}${dataVersion > 0 ? `&_v=${dataVersion}` : ''}`
+        const cacheName = 'drought-aal-cache-v1'
+        
+        let data = null
+        if (typeof caches !== 'undefined') {
+          const cache = await caches.open(cacheName)
+          const cachedRes = await cache.match(url)
+          if (cachedRes) {
+            data = await cachedRes.json()
+            setDroughtAalData(data)
+          }
+          
+          const resp = await fetch(url)
+          if (resp.ok) {
+            await cache.put(url, resp.clone())
+            data = await resp.json()
+            setDroughtAalData(data)
+          }
+        } else {
+          const resp = await fetch(url)
+          if (resp.ok) {
+            data = await resp.json()
+            setDroughtAalData(data)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch Drought AAL Map data:', err)
+        setError('Gagal memuat data peta kekeringan.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDroughtAAL()
+  }, [selectedGroup, infraLayers.aal, droughtAalYear, droughtAalCC, dataVersion])
+
+  // ── Fetch Flood Sawah AAL Data (Map Choropleth) ──────────────────────────────
+  useEffect(() => {
+    if (selectedGroup !== 'banjir' || floodView !== 'sawah' || !infraLayers.aal) return
+
+    const fetchFloodAAL = async () => {
+      setLoading(true)
+      setError('')
+      try {
+        const url = `${BACKEND_URL}/api/aal-flood-sawah?year=${floodAalYear}&cc=${floodAalCC}${dataVersion > 0 ? `&_v=${dataVersion}` : ''}`
+        const cacheName = 'flood-sawah-aal-cache-v1'
+
+        let data = null
+        if (typeof caches !== 'undefined') {
+          const cache = await caches.open(cacheName)
+          const cachedRes = await cache.match(url)
+          if (cachedRes) {
+            data = await cachedRes.json()
+            setFloodSawahData(data)
+          }
+
+          const resp = await fetch(url)
+          if (resp.ok) {
+            await cache.put(url, resp.clone())
+            data = await resp.json()
+            setFloodSawahData(data)
+          }
+        } else {
+          const resp = await fetch(url)
+          if (resp.ok) {
+            data = await resp.json()
+            setFloodSawahData(data)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch Flood Sawah AAL Map data:', err)
+        setError('Gagal memuat data peta sawah banjir.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFloodAAL()
+  }, [selectedGroup, floodView, infraLayers.aal, floodAalYear, floodAalCC, dataVersion])
+
   // ── Effect to update Exposure Markers ─────────────────────────────────────────
   useEffect(() => {
     if (!mapRef.current || !exposureData) return
@@ -1124,7 +1217,7 @@ export default function CogHazardMap() {
     const activeTypes = Object.keys(infraLayers).filter(k => infraLayers[k])
     exposureCluster.current.clearLayers()
 
-    if (activeTypes.length === 0) return
+    if (activeTypes.length === 0 || selectedGroup === 'kekeringan') return
 
     const markers = []
     exposureData.features.forEach(f => {
@@ -1236,9 +1329,11 @@ export default function CogHazardMap() {
 
     // Choose which boundary data to use based on toggles
     let activeBoundaryData = null;
-    if (infraLayers.aal) activeBoundaryData = boundaryDataAAL;
-    else if (infraLayers.directLoss) activeBoundaryData = boundaryDataDL;
-    else if (infraLayers.boundaries) activeBoundaryData = boundaryDataAAL || boundaryDataDL; // Fallback to either if just boundary is toggled
+    if (infraLayers.aal) {
+      activeBoundaryData = (selectedGroup === 'kekeringan') ? droughtAalData : enrichedBoundaryDataAAL;
+    }
+    else if (infraLayers.directLoss) activeBoundaryData = enrichedBoundaryDataDL;
+    else if (infraLayers.boundaries) activeBoundaryData = enrichedBoundaryDataAAL || enrichedBoundaryDataDL; // Fallback to either if just boundary is toggled
 
     if (!activeBoundaryData) {
       if (boundaryLayer.current) {
@@ -1289,11 +1384,16 @@ export default function CogHazardMap() {
         else if (selectedGroup === 'earthquake') hazPrefix = 'pga';
         else if (selectedGroup === 'tsunami') hazPrefix = 'inundansi';
         else if (selectedGroup === 'kekeringan') hazPrefix = 'drought';
-        if (hazPrefix) activeMetric = `aal_${hazPrefix}_${activeAalExposure || 'total'}`;
+
+        if (selectedGroup === 'kekeringan') {
+          activeMetric = 'aal'; // Drought AAL data from /api/aal-drought already filtered, metric is just 'aal'
+        } else if (hazPrefix) {
+          activeMetric = `aal_${hazPrefix}_${activeAalExposure || 'total'}`;
+        }
       }
 
       const isAal = infraLayers.aal && activeMetric;
-      const isSawahDL = selectedRpId && infraLayers.directLoss && ((selectedGroup === 'banjir' && floodView === 'sawah') || selectedGroup === 'kekeringan');
+      const isSawahDL = (selectedRpId || selectedGroup === 'kekeringan') && infraLayers.directLoss && ((selectedGroup === 'banjir' && floodView === 'sawah') || selectedGroup === 'kekeringan');
       const isEarthquake = selectedGroup === 'earthquake' && infraLayers.directLoss;
 
       // 1. Calculate Legend Grades (Jenks)
@@ -1358,7 +1458,8 @@ export default function CogHazardMap() {
           const catData = dlExp[categoryKey] || {};
           val = (catData[activeMetric] || catData[`direct_loss_${activeMetric}`] || 0) * 100;
         } else if (activeMetric) {
-          val = feature.properties[activeMetric] || feature.properties[`ratio_${activeMetric}`] || 0;
+          const props = feature.properties;
+          val = props[activeMetric] !== undefined ? props[activeMetric] : (props[`ratio_${activeMetric}`] || 0);
         }
         return val;
       };
@@ -1464,7 +1565,7 @@ export default function CogHazardMap() {
         }
       }).addTo(mapRef.current);
     }
-  }, [infraLayers.boundaries, infraLayers.aal, infraLayers.directLoss, infraLayers.modelHazard, selectedGroup, selectedRpId, boundaryDataAAL, boundaryDataDL, opacityAAL, activeAalExposure, floodView, floodSawahData, droughtSawahData, floodSawahYear, droughtLossYear])
+  }, [infraLayers.boundaries, infraLayers.aal, infraLayers.directLoss, infraLayers.modelHazard, selectedGroup, selectedRpId, boundaryDataAAL, boundaryDataDL, droughtAalData, droughtAalYear, droughtAalCC, opacityAAL, activeAalExposure, floodView, floodSawahData, droughtSawahData, floodSawahYear, droughtLossYear])
 
 
 
@@ -1518,6 +1619,13 @@ export default function CogHazardMap() {
       // Auto-select for groups that typically only have one relevant mode/RP
       const files = hazardGroupFiles[selectedGroup] || []
       if (files.length > 0) setSelectedRpId(files[0].id)
+      
+      if (selectedGroup === 'kekeringan') {
+        setActiveAalExposure('sawah')
+        setInfraLayers(prev => ({ ...prev, aal: true, directLoss: false }))
+      } else {
+        setActiveAalExposure('total')
+      }
     }
   }, [selectedGroup, hazardGroupFiles])
 
@@ -2134,6 +2242,10 @@ export default function CogHazardMap() {
           setFloodView={setFloodView}
           floodSawahYear={floodSawahYear}
           setFloodSawahYear={setFloodSawahYear}
+          floodAalYear={floodAalYear}
+          setFloodAalYear={setFloodAalYear}
+          floodAalCC={floodAalCC}
+          setFloodAalCC={setFloodAalCC}
           onOpenHSBGN={() => {
             setHsbgnPanelPos({ x: 0, y: 0 }); // reset position if re-opened
             setIsHSBGNPanelOpen(true)
@@ -2163,6 +2275,14 @@ export default function CogHazardMap() {
             setDownloadInitialType(type || 'building');
             setIsDownloadOpen(true);
           }}
+          droughtAalYear={droughtAalYear}
+          setDroughtAalYear={setDroughtAalYear}
+          droughtAalCC={droughtAalCC}
+          setDroughtAalCC={setDroughtAalCC}
+          floodSawahScheme={floodSawahScheme}
+          setFloodSawahScheme={setFloodSawahScheme}
+          Calendar={Calendar}
+          Shield={Shield}
         />
 
         {/* ── Map area ── */}
@@ -2290,7 +2410,17 @@ export default function CogHazardMap() {
             setFloodView={(v) => { setFloodView(v); }}
             floodSawahYear={floodSawahYear}
             setFloodSawahYear={setFloodSawahYear}
+            floodAalYear={floodAalYear}
+            setFloodAalYear={setFloodAalYear}
+            floodAalCC={floodAalCC}
+            setFloodAalCC={setFloodAalCC}
             floodSawahData={floodSawahData}
+            droughtAalYear={droughtAalYear}
+            setDroughtAalYear={setDroughtAalYear}
+            droughtAalCC={droughtAalCC}
+            setDroughtAalCC={setDroughtAalCC}
+            floodSawahScheme={floodSawahScheme}
+            setFloodSawahScheme={setFloodSawahScheme}
             onOpenTable={(tab) => {
               setInitialExposureTab(tab || 'healthcare');
               setInfraLayers(prev => ({

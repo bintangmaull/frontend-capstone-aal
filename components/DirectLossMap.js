@@ -112,7 +112,7 @@ export default function DirectLossMap({ geojson, cityGeojson, filters, search, s
 
   const handlePointerDown = (e) => {
     // Only drag on the header area or panel itself, not on close button
-    if (e.target.closest('.close-btn')) return;
+    if (e.target.closest('.close-btn') || e.target.closest('.no-drag')) return;
     setIsDragging(true)
     dragStartPos.current = { x: e.clientX - panelPos.x, y: e.clientY - panelPos.y }
     e.currentTarget.setPointerCapture(e.pointerId)

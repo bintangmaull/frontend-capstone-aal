@@ -17,6 +17,7 @@ const hazardsConfig = [
   { key: 'inundansi', label: 'Tsunami', color: '#6FB5C2' },     // Muted Cyan
   { key: 'r', label: 'Banjir (R)', color: '#2FA69A' },         // Teal Green
   { key: 'rc', label: 'Banjir (RC)', color: '#1C7C75' },       // Dark Teal
+  { key: 'drought', label: 'Kekeringan', color: '#f97316' },    // Orange
 ];
 
 const chartTypes = [

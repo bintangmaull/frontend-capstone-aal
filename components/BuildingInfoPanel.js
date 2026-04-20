@@ -35,7 +35,7 @@ const BuildingInfoPanel = ({ data, darkMode, dlExposure, activeTab, setActiveTab
   ];
 
   return (
-    <div className="flex flex-col gap-1.5 font-[Inter] text-left p-0">
+    <div className="flex flex-col gap-1.5 font-[Inter] text-left p-0 no-drag">
       {/* Header */}
       <div className={`border-b ${darkMode ? 'border-white/10' : 'border-slate-200'} pb-1`}>
         <h3 className={`font-black text-[10.5px] leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>{p.nama_gedung || 'Tanpa Nama'}</h3>

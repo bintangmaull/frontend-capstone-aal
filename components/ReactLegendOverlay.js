@@ -6,6 +6,8 @@ import { TrendingUp, TrendingDown, Info, Maximize2, Minimize2, MapPin, X, BarCha
 import { MANUAL_GEMPA_DATA } from '../src/lib/manual_gempa_data';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { DROUGHT_CURVE } from '../src/lib/drought_curve';
+import DroughtAALChartPanel from './DroughtAALChartPanel';
+import FloodAALSawahChartPanel from './FloodAALSawahChartPanel';
 
 const formatUSD = (v) => {
   if (!v && v !== 0) return '-';
@@ -65,7 +67,7 @@ function jenks(data, n_classes) {
   return kclass;
 }
 
-// ── AAL Chart Sub-Component ──────────────────────────────────────────────────
+// -- AAL Chart Sub-Component --------------------------------------------------
 const HAZARD_KEYS = [
   { key: 'pga', label: 'Gempa\nBumi', color: '#ef4444' },
   { key: 'inundansi', label: 'Tsunami', color: '#8b5cf6' },
@@ -227,7 +229,8 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
   const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   React.useEffect(() => {
-    if (selectedGroup !== 'kekeringan') return;
+    const isActuallyDrought = selectedGroup === 'kekeringan' || selectedGroup === 'drought_gpm' || selectedGroup === 'drought_mme';
+    if (!isActuallyDrought) return;
     setLoading(true);
     fetch(`${BACKEND_URL}/api/drought-sawah-loss`)
       .then(r => r.json())
@@ -236,7 +239,8 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
       .finally(() => setLoading(false));
   }, [selectedGroup, BACKEND_URL]);
 
-  if (selectedGroup !== 'kekeringan') return null;
+  const isActuallyDrought = selectedGroup === 'kekeringan' || selectedGroup === 'drought_gpm' || selectedGroup === 'drought_mme';
+  if (!isActuallyDrought) return null;
 
   const formatRupiah = (v) => {
     if (!v && v !== 0) return '-';
@@ -250,7 +254,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
   const yearLabels = { loss_2022: '2022', loss_2025: '2025', loss_2028: '2028' };
   const sortedRps = (droughtData?.return_periods || []).sort((a, b) => a - b);
 
-  // ── PER-CITY MODE ─────────────────────────────────────────────────
+  // -- PER-CITY MODE -------------------------------------------------
   const selectedKota = selectedCityFeature?.properties?.nama_kota || selectedCityFeature?.properties?.id_kota;
   if (selectedCityFeature && selectedKota) {
 
@@ -348,13 +352,13 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
       <div className="px-4 pt-3 pb-2 flex flex-col gap-3">
         <div className="text-[8px] font-extrabold text-slate-500 tracking-widest uppercase flex items-center gap-1">
           <BarChart2 size={10} className="text-green-600" />
-          Direct Loss Sawah — {selectedKota}
+          Direct Loss Sawah  -  {selectedKota}
         </div>
         {loading && <div className="text-[9px] text-slate-400 py-4 text-center">Memuat data...</div>}
 
         {!loading && droughtData && (
           <>
-            {/* ── Chart 1: Per Sawah Year (all RPs) ── */}
+            {/* -- Chart 1: Per Sawah Year (all RPs) -- */}
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <span className={`text-[7px] font-bold ${darkMode ? 'text-gray-400' : 'text-slate-600'}`}>Semua Return Period per Tahun Eksposur</span>
@@ -369,7 +373,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
               </div>
             </div>
 
-            {/* ── Charts 2-4: Per Year, NCC vs CC by RP ── */}
+            {/* -- Charts 2-4: Per Year, NCC vs CC by RP -- */}
             <div className="flex gap-4 mt-1">
               <div className="flex items-center gap-1.5"><span className="w-3 h-2 rounded-sm bg-[#52b788]" /><span className="text-[7px] text-slate-600 font-semibold">Non CC</span></div>
               <div className="flex items-center gap-1.5"><span className="w-3 h-2 rounded-sm bg-[#60a5fa]" /><span className="text-[7px] text-slate-600 font-semibold">Climate Change</span></div>
@@ -399,7 +403,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
             <div className={`rounded-2xl shadow-2xl p-6 w-full max-w-3xl ${darkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-3 border-b pb-2">
                 <h3 className={`font-bold text-sm ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                  Direct Loss Sawah — {selectedKota || 'Bali'} — {zoomedChart.type === 'year' ? 'Perbandingan per Tahun' : zoomedChart.label}
+                  Direct Loss Sawah  -  {selectedKota || 'Bali'}  -  {zoomedChart.type === 'year' ? 'Perbandingan per Tahun' : zoomedChart.label}
                 </h3>
                 <div className="flex items-center gap-2">
                   <button
@@ -419,7 +423,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
                         }
                       });
                       const link = document.createElement('a');
-                      const title = `Direct Loss Sawah — ${selectedKota || 'Bali'} — ${zoomedChart.type === 'year' ? 'Comparison' : zoomedChart.label}`;
+                      const title = `Direct Loss Sawah  -  ${selectedKota || 'Bali'}  -  ${zoomedChart.type === 'year' ? 'Comparison' : zoomedChart.label}`;
                       link.download = `${title.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.png`;
                       link.href = canvas.toDataURL('image/png');
                       link.click();
@@ -436,7 +440,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
               <div id="zoomed-drought-capture" className={`flex-1 p-2 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
                 <div className="mb-4">
                   <h3 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                    Direct Loss Sawah — {selectedKota || 'Bali'} — {zoomedChart.type === 'year' ? 'Perbandingan per Tahun' : zoomedChart.label}
+                    Direct Loss Sawah  -  {selectedKota || 'Bali'}  -  {zoomedChart.type === 'year' ? 'Perbandingan per Tahun' : zoomedChart.label}
                   </h3>
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Analisis Risiko Sawah Kekerigan</p>
                 </div>
@@ -468,7 +472,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
     );
   }
 
-  // ── ALL-CITIES MODE (existing bar charts) ─────────────────────────
+  // -- ALL-CITIES MODE (existing bar charts) -------------------------
 
   const renderChart = (data, height = 130) => (
     <ResponsiveContainer width="100%" height={height}>
@@ -537,7 +541,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
       <div className="text-[9px] font-bold text-slate-400 tracking-widest uppercase mb-1 flex items-center justify-between group">
         <div className="flex items-center gap-2">
           <BarChart2 size={10} className="text-green-600" />
-          Direct Loss Sawah — Kekeringan
+          Direct Loss Sawah  -  Kekeringan
         </div>
         <button
           onClick={() => onOpenDownload('map_chart')}
@@ -629,7 +633,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
                   ))}
                 </div>
 
-                {/* 3 charts — one per sawah year */}
+                {/* 3 charts  -  one per sawah year */}
                 {[
                   { yearKey: 'loss_2022', label: 'Sawah 2022' },
                   { yearKey: 'loss_2025', label: 'Sawah 2025' },
@@ -669,8 +673,8 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
                   <BarChart2 size={24} className={darkMode ? 'text-green-400' : 'text-green-600'} />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>Direct Loss Sawah — {zoomedChart.label}</h3>
-                  <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Semua Kota — Kekeringan</p>
+                  <h3 className={`text-lg font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>Direct Loss Sawah  -  {zoomedChart.label}</h3>
+                  <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Semua Kota  -  Kekeringan</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -691,7 +695,7 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
                       }
                     });
                     const link = document.createElement('a');
-                    const title = `Direct Loss Sawah — ${zoomedChart.label} — Kekeringan`;
+                    const title = `Direct Loss Sawah  -  ${zoomedChart.label}  -  Kekeringan`;
                     link.download = `${title.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
@@ -710,9 +714,9 @@ function DroughtSawahChartPanel({ selectedGroup, selectedCityFeature, onOpenDown
             <div id="zoomed-drought-capture" className={`flex-1 p-8 overflow-y-auto ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
               <div className="mb-6">
                 <h3 className={`text-2xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                  Direct Loss Sawah — {zoomedChart.label}
+                  Direct Loss Sawah  -  {zoomedChart.label}
                 </h3>
-                <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Analisis Risiko Sawah Kekeringan — Semua Kota</p>
+                <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Analisis Risiko Sawah Kekeringan  -  Semua Kota</p>
               </div>
               <div className="flex flex-wrap gap-x-6 gap-y-2 mb-6">
                 {zoomedChart.rpColors && Object.entries(zoomedChart.rpColors).map(([key, color]) => (
@@ -755,14 +759,15 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
     return `Rp ${v.toLocaleString('id-ID')}`;
   };
 
-  const sortedRps = (floodData?.return_periods || []).sort((a, b) => a - b);
+  const allRps = (floodData?.return_periods || []).sort((a, b) => a - b);
+  const sortedRps = allRps.filter(rp => [10, 25, 50, 100, 250].includes(rp));
 
   // NCC (blue shades for r), CC (orange/amber shades for rc)
   const nccColors = { 2: '#1e3a8a', 5: '#1d4ed8', 10: '#3b82f6', 25: '#60a5fa', 50: '#93c5fd', 100: '#bfdbfe', 250: '#dbeafe' };
   const ccColors = { 2: '#7c2d12', 5: '#c2410c', 10: '#ea580c', 25: '#f97316', 50: '#fb923c', 100: '#fdba74', 250: '#fed7aa' };
 
 
-  // ── PER-CITY MODE ─────────────────────────────────────────────────
+  // -- PER-CITY MODE -------------------------------------------------
   const selectedKota = selectedCityFeature?.properties?.nama_kota || selectedCityFeature?.properties?.id_kota;
   if (selectedCityFeature && selectedKota) {
     const years = [
@@ -837,9 +842,11 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
 
     return (
       <div className="px-4 pt-3 pb-2 flex flex-col gap-3">
-        <div className={`text-[8px] font-extrabold tracking-widest uppercase flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
-          <BarChart2 size={10} className={darkMode ? 'text-blue-400' : 'text-blue-600'} />
-          Direct Loss Sawah — {selectedKota}
+        <div className={`text-[8px] font-extrabold tracking-widest uppercase flex items-center justify-between group ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
+          <div className="flex items-center gap-1.5">
+            <BarChart2 size={10} className={darkMode ? 'text-blue-400' : 'text-blue-600'} />
+            Direct Loss Sawah  -  {selectedKota}
+          </div>
         </div>
 
         {loading && <div className="text-[9px] text-slate-400 py-4 text-center">Memuat data...</div>}
@@ -861,11 +868,11 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
                   <div className="flex items-center justify-between">
                     <span className={`text-[9px] font-bold ${isActive ? 'text-green-700' : 'text-slate-600'}`}>Sawah {label}</span>
                     <span className="text-[6px] text-slate-400 cursor-pointer hover:text-blue-600 transition-colors"
-                      onClick={() => setZoomedChart({ label: `Sawah ${label} — ${selectedKota}`, data })}>Perbesar</span>
+                      onClick={() => setZoomedChart({ label: `Sawah ${label}  -  ${selectedKota}`, data })}>Perbesar</span>
                   </div>
                   <div className={`border rounded-lg p-1.5 shadow-sm cursor-pointer transition-colors ${darkMode ? 'bg-gray-800 border-gray-700 hover:border-blue-500/50' : 'bg-white border-slate-200 hover:border-blue-300'
                     }`}
-                    onClick={() => setZoomedChart({ label: `Sawah ${label} — ${selectedKota}`, data })}>
+                    onClick={() => setZoomedChart({ label: `Sawah ${label}  -  ${selectedKota}`, data })}>
                     {renderGroupedBar(data, 130)}
                   </div>
                 </div>
@@ -895,7 +902,7 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
     );
   }
 
-  // ── ALL-CITIES MODE ─────────────────────────────────────────────────
+  // -- ALL-CITIES MODE -------------------------------------------------
   const rpColors = {};
   const rpLabels = {};
   sortedRps.forEach(rp => {
@@ -966,15 +973,9 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
       <div className="text-[9px] font-bold text-slate-400 tracking-widest uppercase mb-1 flex items-center justify-between group">
         <div className="flex items-center gap-2">
           <BarChart2 size={10} className={darkMode ? 'text-blue-400' : 'text-blue-600'} />
-          Direct Loss Sawah — Banjir
+          Direct Loss Sawah  -  Banjir
         </div>
-        <button
-          onClick={() => onOpenDownload('map_chart')}
-          className={`p-1 rounded-md transition-all opacity-0 group-hover:opacity-100 ${darkMode ? 'hover:bg-white/10 text-gray-400 hover:text-blue-400' : 'hover:bg-slate-100 text-slate-400 hover:text-blue-600'}`}
-          title="Download Gambar"
-        >
-          <Download size={10} strokeWidth={2.5} />
-        </button>
+
       </div>
 
       {loading && <div className="text-[9px] text-slate-400 py-4 text-center">Memuat data...</div>}
@@ -998,12 +999,12 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
             return (
               <div key={key} className={`flex flex-col gap-0.5 rounded-lg p-1.5 transition-colors ${isActive ? (darkMode ? 'bg-blue-900/20 border border-blue-800/50' : 'bg-white border border-green-100/50') : ''}`}>
                 <div className="flex items-center justify-between">
-                  <span className={`text-[9px] font-bold ${isActive ? (darkMode ? 'text-blue-400' : 'text-green-700') : (darkMode ? 'text-gray-400' : 'text-slate-600')}`}>Sawah {label} — Semua Kota</span>
+                  <span className={`text-[9px] font-bold ${isActive ? (darkMode ? 'text-blue-400' : 'text-green-700') : (darkMode ? 'text-gray-400' : 'text-slate-600')}`}>Sawah {label}  -  Semua Kota</span>
                   <span className={`text-[6px] cursor-pointer transition-colors ${darkMode ? 'text-gray-500 hover:text-blue-400' : 'text-slate-400 hover:text-blue-600'}`}
-                    onClick={() => setZoomedChart({ label: `Sawah ${label} — Semua Kota`, data })}>Perbesar</span>
+                    onClick={() => setZoomedChart({ label: `Sawah ${label}  -  Semua Kota`, data })}>Perbesar</span>
                 </div>
                 <div className={`border rounded-lg p-1.5 shadow-sm cursor-pointer transition-colors ${darkMode ? 'bg-gray-800/40 border-gray-700 hover:border-blue-500/50' : 'bg-white border-blue-100 hover:border-blue-300'}`}
-                  onClick={() => setZoomedChart({ label: `Sawah ${label} — Semua Kota`, data })}>
+                  onClick={() => setZoomedChart({ label: `Sawah ${label}  -  Semua Kota`, data })}>
                   {renderMultiRpChart(data, 160)}
                 </div>
               </div>
@@ -1022,8 +1023,8 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
                   <BarChart2 size={24} className={darkMode ? 'text-blue-400' : 'text-blue-600'} />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>Direct Loss Sawah — {zoomedChart.label}</h3>
-                  <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Semua Kota — Banjir</p>
+                  <h3 className={`text-lg font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>Direct Loss Sawah  -  {zoomedChart.label}</h3>
+                  <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Semua Kota  -  Banjir</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -1044,7 +1045,7 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
                       }
                     });
                     const link = document.createElement('a');
-                    const title = `Direct Loss Sawah — ${zoomedChart.label} — Banjir`;
+                    const title = `Direct Loss Sawah  -  ${zoomedChart.label}  -  Banjir`;
                     link.download = `${title.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
@@ -1063,9 +1064,9 @@ function FloodSawahChartPanel({ selectedCityFeature, floodData, selectedSawahYea
             <div id="zoomed-flood-capture" className={`flex-1 p-8 overflow-y-auto ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
               <div className="mb-6">
                 <h3 className={`text-2xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                  Direct Loss Sawah — {zoomedChart.label}
+                  Direct Loss Sawah  -  {zoomedChart.label}
                 </h3>
-                <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Analisis Risiko Sawah Banjir — Semua Kota</p>
+                <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>Analisis Risiko Sawah Banjir  -  Semua Kota</p>
               </div>
               <div className="flex flex-wrap gap-x-6 gap-y-2 mb-6">
                 {Object.entries(rpColors).map(([key, color]) => (
@@ -1141,7 +1142,17 @@ function DirectLossChartPanel({ boundaryData, selectedCityFeature, selectedGroup
     }).sort((a, b) => b._sortVal - a._sortVal);
   }, [boundaryData, selectedGroup, rpsConfig]);
 
-  const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b', '#f97316', '#84cc16', '#fb7185', '#2dd4bf', '#a3e635', '#c084fc'];
+  const hazardColors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#6366f1'];
+  const exposureColors = {
+    'Healthcare Facilities': '#3b82f6',
+    'Educational Facilities': '#ef4444',
+    'Electricity': '#10b981',
+    'Airport': '#f59e0b',
+    'Hotel': '#8b5cf6',
+    'BMN': '#ec4899',
+    'Residential': '#06b6d4',
+    'Sawah': '#10b981'
+  };
 
   let totalCount = 0;
   let totalAsset = 0;
@@ -1355,7 +1366,7 @@ function DirectLossChartPanel({ boundaryData, selectedCityFeature, selectedGroup
           <span className={`text-[8px] font-bold tracking-widest uppercase ${darkMode ? 'text-gray-500' : 'text-slate-400'}`}>Total Nilai Aset</span>
           <div className="flex flex-col items-end">
             <span className={`text-[12px] font-extrabold ${darkMode ? 'text-white' : 'text-slate-800'}`}>{formatRupiah(totalAsset)}</span>
-            <span className="text-[10px] text-green-600 font-bold">({formatUSD(totalAsset)})</span>
+            <span className={`text-[10px] text-green-600 font-bold`}>({formatUSD(totalAsset)})</span>
           </div>
         </div>
       </div>
@@ -1432,7 +1443,7 @@ function DirectLossChartPanel({ boundaryData, selectedCityFeature, selectedGroup
                   }}
                 />
                 {rpsConfig.map((col, idx) => (
-                  <Bar key={col.key} dataKey={col.key} name={col.label} fill={colors[idx % colors.length]} radius={[2, 2, 0, 0]} />
+                  <Bar key={col.key} dataKey={col.key} name={col.label} fill={hazardColors[idx % hazardColors.length]} radius={[2, 2, 0, 0]} />
                 ))}
               </BarChart>
             </ResponsiveContainer>
@@ -1517,7 +1528,7 @@ function DirectLossChartPanel({ boundaryData, selectedCityFeature, selectedGroup
                   }}
                 />
                 {rpsConfig.map((col, idx) => (
-                  <Bar key={col.key} dataKey={col.key} name={col.label} fill={colors[idx % colors.length]} radius={[2, 2, 0, 0]} />
+                  <Bar key={col.key} dataKey={col.key} name={col.label} fill={hazardColors[idx % hazardColors.length]} radius={[2, 2, 0, 0]} />
                 ))}
               </BarChart>
             </ResponsiveContainer>
@@ -1615,7 +1626,7 @@ function DirectLossChartPanel({ boundaryData, selectedCityFeature, selectedGroup
               {selectedGroup !== 'earthquake' && (
                 <div className="mb-4 text-left">
                   <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>{zoomedChart.title}</h3>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>{zoomedChart.type === 'aal' ? 'Analisis Average Annual Loss (AAL)' : 'Analisis Risiko Direct Loss — Semua Return Period'}</p>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>{zoomedChart.type === 'aal' ? 'Analisis Average Annual Loss (AAL)' : 'Analisis Risiko Direct Loss  -  Semua Return Period'}</p>
                 </div>
               )}
 
@@ -1685,7 +1696,7 @@ function DirectLossChartPanel({ boundaryData, selectedCityFeature, selectedGroup
                       key={col.key}
                       dataKey={col.key}
                       name={col.label}
-                      fill={colors[idx % colors.length]}
+                      fill={hazardColors[idx % hazardColors.length]}
                       radius={[4, 4, 0, 0]}
                       maxBarSize={80}
                       animationDuration={1500}
@@ -2066,7 +2077,7 @@ function AALChartPanel({ boundaryData, selectedCityFeature, rekapData, onOpenTab
             <span className={`text-[8px] font-bold tracking-widest uppercase ${darkMode ? 'text-gray-500' : 'text-slate-400'}`}>Total Nilai Aset</span>
             <div className="flex flex-col items-end">
               <span className={`text-[12px] font-extrabold ${darkMode ? 'text-white' : 'text-slate-800'}`}>{formatRupiah(totalAsset)}</span>
-              <span className="text-[10px] text-green-600 font-bold">({formatUSD(totalAsset)})</span>
+              <span className={`text-[10px] text-green-600 font-bold`}>({formatUSD(totalAsset)})</span>
             </div>
           </div>
         </div>
@@ -2339,7 +2350,7 @@ function AALChartPanel({ boundaryData, selectedCityFeature, rekapData, onOpenTab
   );
 }
 
-// ── Main Component ───────────────────────────────────────────────────────────
+// -- Main Component -----------------------------------------------------------
 const ReactLegendOverlay = ({
   rasterStats,
   infraLayers,
@@ -2367,7 +2378,38 @@ const ReactLegendOverlay = ({
   droughtLossYear,
   setDroughtLossYear,
   droughtSawahData,
+  droughtAalYear,
+  setDroughtAalYear,
+  droughtAalCC,
+  setDroughtAalCC,
+  floodSawahScheme,
+  setFloodSawahScheme,
 }) => {
+  const [droughtAalData, setDroughtAalData] = useState([]);
+  const [droughtAalLoading, setDroughtAalLoading] = useState(false);
+
+  const hazardKey = rasterStats?.hazardKey;
+  const hazardInfo = hazardKey ? HAZARD_INFO[hazardKey] : null;
+  const hasHazard = !!hazardInfo;
+  const isDrought = selectedGroup === 'kekeringan' || selectedGroup === 'drought_gpm' || selectedGroup === 'drought_mme';
+  const hasAAL = (infraLayers.aal || isDrought) && selectedGroup;
+  const hasDirectLoss = (infraLayers.directLoss || infraLayers.modelHazard || selectedGroup === 'earthquake' || selectedGroup === 'tsunami') && selectedGroup;
+
+  useEffect(() => {
+    if (isDrought && (hasAAL || hasDirectLoss)) {
+      setDroughtAalLoading(true);
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/aal-drought-table?aggregate=false`)
+        .then(res => res.json())
+        .then(data => {
+          setDroughtAalData(Array.isArray(data) ? data : []);
+        })
+        .catch(err => {
+          console.error("Drought AAL Fetch Error:", err);
+          setDroughtAalData([]);
+        })
+        .finally(() => setDroughtAalLoading(false));
+    }
+  }, [isDrought, hasAAL, hasDirectLoss]);
   const { darkMode } = useTheme();
   const [inputMode, setInputMode] = useState('pick'); // 'pick' or 'manual'
   const [manualIntensity, setManualIntensity] = useState('');
@@ -2404,13 +2446,13 @@ const ReactLegendOverlay = ({
     }
   };
 
-  const hazardKey = rasterStats?.hazardKey;
-  const hazardInfo = hazardKey ? HAZARD_INFO[hazardKey] : null;
-  const hasHazard = !!hazardInfo;
-  const activeExposures = Object.keys(infraLayers).filter(k => k !== 'boundaries' && k !== 'aal' && infraLayers[k]);
+  const activeExposures = Object.keys(EXPOSURE_COLORS).filter(k => k !== 'boundaries' && k !== 'aal' && infraLayers[k]);
+  // For drought, we always consider sawah as the active exposure
+  if (selectedGroup === 'kekeringan') {
+    activeExposures.push('sawah');
+  }
   const hasExposure = activeExposures.length > 0;
-  const hasAAL = infraLayers.aal && selectedGroup && boundaryDataAAL;
-  const hasDirectLoss = infraLayers.directLoss && selectedGroup && boundaryDataDL;
+
   const showBoundaryPanel = hasAAL || hasDirectLoss;
   const activeBoundaryData = hasAAL ? boundaryDataAAL : boundaryDataDL;
 
@@ -2442,7 +2484,6 @@ const ReactLegendOverlay = ({
   }
 
   const renderInteractionPanel = () => {
-    if (!hasHazard) return null;
     const curveMap = {
       flood: 'banjir',
       flood_comp: 'banjir',
@@ -2756,8 +2797,8 @@ const ReactLegendOverlay = ({
                   Eksposur
                 </div>
                 <div className={`grid ${!hasHazard ? 'grid-cols-2 lg:grid-cols-4 gap-x-3 md:gap-x-4 gap-y-1.5 md:gap-y-2' : 'grid-cols-2 gap-x-2 gap-y-0.5'} ${darkMode ? 'text-gray-200' : 'text-slate-600'}`}>
-                  {['healthcare', 'educational', 'electricity', 'airport', 'hotel', 'bmn', 'residential'].map(type => {
-                    if (!infraLayers[type]) return null;
+                  {(selectedGroup === 'kekeringan' ? ['sawah'] : ['healthcare', 'educational', 'electricity', 'airport', 'hotel', 'bmn', 'residential']).map(type => {
+                    if (type !== 'sawah' && !infraLayers[type]) return null;
                     return (
                       <div key={type} className="flex items-center gap-1 md:gap-1.5 group cursor-default">
                         <div
@@ -2765,7 +2806,7 @@ const ReactLegendOverlay = ({
                           style={{ backgroundColor: EXPOSURE_COLORS[type] }}
                         ></div>
                         <span className="text-[6.5px] md:text-[7.5px] font-bold whitespace-nowrap">
-                          {type.toLowerCase() === 'bmn' ? 'BMN' : type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()}
+                          {type === 'sawah' ? '🌾 Sawah' : (type.toLowerCase() === 'bmn' ? 'BMN' : type.charAt(0).toUpperCase() + type.slice(1).toLowerCase())}
                         </span>
                       </div>
                     );
@@ -2810,7 +2851,7 @@ const ReactLegendOverlay = ({
               className="absolute top-0 left-0 w-1.5 h-full cursor-col-resize hover:bg-blue-400/50 transition-colors z-[2010]"
             />
 
-            {/* ─── Header ─── */}
+            {/* --- Header --- */}
             <div className={`px-4 py-3 border-b flex items-start justify-between gap-2 ${darkMode ? 'border-gray-800' : 'border-slate-100'}`}>
               <div className="flex-1 pr-1">
                 <div className="flex items-center gap-2">
@@ -2828,7 +2869,7 @@ const ReactLegendOverlay = ({
                   <div className="flex items-center gap-1 mt-1 flex-wrap">
                     <span className={`text-[10px] font-bold leading-tight mr-1 truncate max-w-[100px] ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>{selectedCityFeature.properties.id_kota || 'Kota'}</span>
                     <button onClick={onClearCity} className={`text-[8px] border px-1.5 py-0.5 rounded transition-colors flex-shrink-0 ${darkMode ? 'text-gray-400 hover:text-red-400 bg-gray-800 border-gray-700 hover:bg-red-900/20 hover:border-red-900/30' : 'text-slate-400 hover:text-red-500 bg-slate-50 border-slate-100 hover:bg-red-50 hover:border-red-100'
-                      }`}>✕ Reset</button>
+                      }`}>x Reset</button>
                   </div>
                 ) : (
                   <div className={`text-[9px] mt-1 truncate ${darkMode ? 'text-gray-500' : 'text-slate-400'}`}>Total Semua Kota/Kabupaten</div>
@@ -2847,13 +2888,13 @@ const ReactLegendOverlay = ({
                     if (!val) {
                       onSelectCity(null);
                     } else {
-                      const feature = activeBoundaryData.features.find(f => f.properties.id_kota === val);
+                      const feature = activeBoundaryData?.features?.find(f => f.properties.id_kota === val);
                       onSelectCity(feature);
                     }
                   }}
                 >
                   <option value="">Pilih Kota...</option>
-                  {activeBoundaryData.features
+                  {activeBoundaryData?.features?.length > 0 && activeBoundaryData.features
                     .map(f => f.properties.id_kota)
                     .filter(Boolean)
                     .sort()
@@ -2864,7 +2905,7 @@ const ReactLegendOverlay = ({
               </div>
             </div>
 
-            {/* ─── Color Legend ─── */}
+            {/* --- Color Legend --- */}
             <div className="px-4 pt-3 pb-2">
               {(() => {
                 let hazPrefix = '';
@@ -2931,9 +2972,24 @@ const ReactLegendOverlay = ({
                   if (selectedGroup === 'banjir') hazPrefix = (selectedRpId && selectedRpId.includes('comp')) ? 'rc' : 'r';
                   else if (selectedGroup === 'earthquake') hazPrefix = 'pga';
                   else if (selectedGroup === 'tsunami') hazPrefix = 'inundansi';
+                  else if (isDrought) hazPrefix = 'drought';
 
-                  metric = `aal_${hazPrefix}_${activeAalExposure || 'total'}`;
-                  vals = activeBoundaryData.features.map(f => f.properties[metric] || 0).filter(v => typeof v === 'number' && !isNaN(v));
+                  if (isDrought && droughtAalData.length > 0) {
+                    metric = activeAalExposure || 'sawah'; // Metric in data objects
+                    vals = activeBoundaryData.features.map(f => {
+                      const cityName = (f.properties.nama_kota || f.properties.id_kota || '').toUpperCase();
+                      // Match by name or ID
+                      const entry = droughtAalData.find(d => 
+                        (d.id_kota && (d.id_kota.toUpperCase().trim() === cityName || d.id_kota.toUpperCase().trim() === (f.properties.id_kota || '').toUpperCase())) &&
+                        Number(d.year) === 2028 && (d.climate_change || '').toLowerCase().trim() === 'cc'
+                      );
+                      const val = entry ? (entry.aal !== undefined ? entry.aal : entry.AAL) : 0;
+                      return Number(val || 0);
+                    }).filter(v => typeof v === 'number' && !isNaN(v));
+                  } else {
+                    metric = `aal_${hazPrefix}_${activeAalExposure || 'total'}`;
+                    vals = activeBoundaryData.features.map(f => f.properties[metric] || 0).filter(v => typeof v === 'number' && !isNaN(v));
+                  }
                 }
 
                 if (vals.length === 0) return (
@@ -2991,9 +3047,9 @@ const ReactLegendOverlay = ({
               )}
             </div>
 
-            {/* ─── Bar Charts ─── */}
+            {/* --- Bar Charts --- */}
             <div className="overflow-y-auto flex-1 custom-scrollbar">
-              {hasDirectLoss && selectedGroup === 'kekeringan' && (
+              {hasDirectLoss && isDrought && (
                 <DroughtSawahChartPanel
                   selectedGroup={selectedGroup}
                   selectedCityFeature={selectedCityFeature}
@@ -3011,7 +3067,7 @@ const ReactLegendOverlay = ({
                 />
               )}
 
-              {hasDirectLoss && (selectedGroup !== 'kekeringan' && (selectedGroup !== 'banjir' || floodView === 'building')) && (
+              {hasDirectLoss && (selectedGroup !== 'banjir' || floodView === 'building') && !isDrought && (
                 <DirectLossChartPanel
                   boundaryData={boundaryDataDL}
                   selectedGroup={selectedGroup}
@@ -3022,15 +3078,31 @@ const ReactLegendOverlay = ({
                 />
               )}
 
-              {hasAAL && (
-                <AALChartPanel
-                  boundaryData={boundaryDataAAL}
+              {hasAAL && isDrought && (
+                <DroughtAALChartPanel
                   selectedCityFeature={selectedCityFeature}
-                  rekapData={boundaryDataDL}
-                  selectedGroup={selectedGroup}
-                  onOpenDownload={onOpenDownload}
-                  onOpenTable={onOpenTable}
+                  allCitiesData={droughtAalData}
+                  loadingProp={droughtAalLoading}
                 />
+              )}
+
+              {hasAAL && !isDrought && (
+                selectedGroup === 'banjir' && floodView === 'sawah' ? (
+                  <FloodAALSawahChartPanel
+                    selectedCityFeature={selectedCityFeature}
+                    scheme={floodSawahScheme}
+                    setScheme={setFloodSawahScheme}
+                  />
+                ) : (
+                  <AALChartPanel
+                    boundaryData={boundaryDataAAL}
+                    selectedCityFeature={selectedCityFeature}
+                    rekapData={boundaryDataDL}
+                    selectedGroup={selectedGroup}
+                    onOpenDownload={onOpenDownload}
+                    onOpenTable={onOpenTable}
+                  />
+                )
               )}
             </div>
           </div>

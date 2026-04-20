@@ -223,13 +223,24 @@ export default function LayerServices({
   setFloodView,
   floodSawahYear,
   setFloodSawahYear,
+  floodAalYear,
+  setFloodAalYear,
+  floodAalCC,
+  setFloodAalCC,
   // Data for download
   exposureData,
   boundaryDataDL,
   boundaryDataAAL,
   droughtSawahData,
   floodSawahData,
-  onOpenDownload
+  onOpenDownload,
+  // New props for drought selectors
+  droughtAalCC,
+  setDroughtAalCC,
+  floodSawahScheme,
+  setFloodSawahScheme,
+  Calendar,
+  Shield
 }) {
   const { darkMode } = useTheme()
   const [openSettings, setOpenSettings] = useState(null) // 'basemap' | 'hazard' | 'aal' | 'sawah' | null
@@ -442,6 +453,30 @@ export default function LayerServices({
                 />
               </div>
             )}
+            {selectedGroup === 'banjir' && (
+              <div className="px-1 mb-3">
+                <div className={`p-1 rounded-xl border flex gap-1 ${darkMode ? 'bg-white/[0.03] border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                  <button
+                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black tracking-wider transition-all ${(floodView || 'building') === 'building'
+                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
+                      : (darkMode ? 'text-gray-500 hover:text-white' : 'text-slate-400 hover:text-slate-600')
+                      }`}
+                    onClick={() => setFloodView && setFloodView('building')}
+                  >
+                    BUILDING
+                  </button>
+                  <button
+                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black tracking-wider transition-all ${floodView === 'sawah'
+                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                      : (darkMode ? 'text-gray-500 hover:text-white' : 'text-slate-400 hover:text-slate-600')
+                      }`}
+                    onClick={() => setFloodView && setFloodView('sawah')}
+                  >
+                    SAWAH
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3">
               <div className="flex flex-col gap-2">
@@ -453,7 +488,7 @@ export default function LayerServices({
                   icon={BarChart3}
                 />
 
-                {infraLayers.aal && !!selectedGroup && (
+                {infraLayers.aal && !!selectedGroup && (selectedGroup !== 'kekeringan' && selectedGroup !== 'drought_gpm' && selectedGroup !== 'drought_mme') && (selectedGroup !== 'banjir' || floodView !== 'sawah') && (
                   <div className="animate-in fade-in slide-in-from-top-1 duration-200 p-2 rounded-xl bg-blue-500/5 border border-blue-500/20">
                     <select
                       value={activeAalExposure}
@@ -471,6 +506,65 @@ export default function LayerServices({
                       <option value="airport" className={darkMode ? 'bg-[#1A1D21]' : ''}>Airport</option>
                       <option value="hotel" className={darkMode ? 'bg-[#1A1D21]' : ''}>Hotel</option>
                     </select>
+                  </div>
+                )}
+
+                {/* Drought AAL Year & CC Selectors */}
+                {infraLayers.aal && selectedGroup === 'kekeringan' && (
+                  <div className="animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col gap-2 p-2 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                    <div className="flex items-center gap-2 p-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <Calendar size={12} className="text-green-500 shrink-0" />
+                      <select
+                        value={droughtAalYear}
+                        onChange={(e) => setDroughtAalYear(e.target.value)}
+                        className={`bg-transparent border-none p-0 text-[10px] font-bold outline-none cursor-pointer w-full ${darkMode ? 'text-green-400' : 'text-green-700'}`}
+                      >
+                        <option value="2022" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Sawah 2022</option>
+                        <option value="2025" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Sawah 2025</option>
+                        <option value="2028" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Sawah 2028</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2 p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <Shield size={12} className="text-blue-500 shrink-0" />
+                      <select
+                        value={droughtAalCC}
+                        onChange={(e) => setDroughtAalCC(e.target.value)}
+                        className={`bg-transparent border-none p-0 text-[10px] font-bold outline-none cursor-pointer w-full ${darkMode ? 'text-blue-400' : 'text-blue-700'}`}
+                      >
+                        <option value="ncc" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Non Climate Change</option>
+                        <option value="cc" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Climate Change</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+                {infraLayers.aal && selectedGroup === 'banjir' && floodView === 'sawah' && (
+                  <div className="animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col gap-2 p-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                    <div className="flex items-center justify-between px-1">
+                      <span className={`text-[7px] font-bold uppercase tracking-widest ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Tahun Sawah</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <Calendar size={12} className="text-green-500 shrink-0" />
+                      <select
+                        value={floodAalYear}
+                        onChange={(e) => setFloodAalYear && setFloodAalYear(e.target.value)}
+                        className={`bg-transparent border-none p-0 text-[10px] font-bold outline-none cursor-pointer w-full ${darkMode ? 'text-green-400' : 'text-green-700'}`}
+                      >
+                        <option value="2022" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Sawah 2022</option>
+                        <option value="2025" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Sawah 2025</option>
+                        <option value="2028" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Sawah 2028</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2 p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <Shield size={12} className="text-blue-500 shrink-0" />
+                      <select
+                        value={floodAalCC}
+                        onChange={(e) => setFloodAalCC && setFloodAalCC(e.target.value)}
+                        className={`bg-transparent border-none p-0 text-[10px] font-bold outline-none cursor-pointer w-full ${darkMode ? 'text-blue-400' : 'text-blue-700'}`}
+                      >
+                        <option value="ncc" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Non Climate Change</option>
+                        <option value="cc" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Climate Change</option>
+                      </select>
+                    </div>
                   </div>
                 )}
               </div>
@@ -505,49 +599,25 @@ export default function LayerServices({
                   </div>
                 )}
 
-                {/* Flood View Toggle & Year Selector */}
-                {selectedGroup === 'banjir' && infraLayers.directLoss && (
-                  <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                    <div className={`p-1 rounded-xl border flex gap-1 ${darkMode ? 'bg-white/[0.03] border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                      <button
-                        className={`flex-1 py-1.5 rounded-lg text-[10px] font-black tracking-wider transition-all ${(floodView || 'building') === 'building'
-                          ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20'
-                          : (darkMode ? 'text-gray-500 hover:text-white' : 'text-slate-400 hover:text-slate-600')
-                          }`}
-                        onClick={() => setFloodView && setFloodView('building')}
-                      >
-                        BUILDING
-                      </button>
-                      <button
-                        className={`flex-1 py-1.5 rounded-lg text-[10px] font-black tracking-wider transition-all ${floodView === 'sawah'
-                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                          : (darkMode ? 'text-gray-500 hover:text-white' : 'text-slate-400 hover:text-slate-600')
-                          }`}
-                        onClick={() => setFloodView && setFloodView('sawah')}
-                      >
-                        RICE FIELD
-                      </button>
+                {selectedGroup === 'banjir' && infraLayers.directLoss && floodView === 'sawah' && (
+                  <div className="p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-[9px] font-black text-emerald-500/60 uppercase tracking-widest">Tahun Sawah</div>
                     </div>
-
-                    {floodView === 'sawah' && (
-                      <div className="p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
-                        <div className="text-[9px] font-black text-emerald-500/60 uppercase tracking-widest mb-2">Tahun Sawah</div>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {[{ key: 'loss_2022', label: '2022' }, { key: 'loss_2025', label: '2025' }, { key: 'loss_2028', label: '2028' }].map(({ key, label }) => (
-                            <button
-                              key={key}
-                              onClick={() => setFloodSawahYear && setFloodSawahYear(key)}
-                              className={`text-[10px] font-black py-1.5 rounded-lg border transition-all ${(floodSawahYear || 'loss_2022') === key
-                                ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/20'
-                                : (darkMode ? 'bg-white/5 text-gray-400 border-white/5 hover:border-white/10' : 'bg-white text-slate-400 border-slate-100')
-                                }`}
-                            >
-                              {label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[{ key: 'loss_2022', label: '2022' }, { key: 'loss_2025', label: '2025' }, { key: 'loss_2028', label: '2028' }].map(({ key, label }) => (
+                        <button
+                          key={key}
+                          onClick={() => setFloodSawahYear && setFloodSawahYear(key)}
+                          className={`text-[10px] font-black py-1.5 rounded-lg border transition-all ${(floodSawahYear || 'loss_2022') === key
+                            ? 'bg-emerald-500 text-white border-emerald-500 shadow-lg shadow-emerald-500/20'
+                            : (darkMode ? 'bg-white/5 text-gray-400 border-white/5 hover:border-white/10' : 'bg-white text-slate-400 border-slate-100')
+                            }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -582,7 +652,12 @@ export default function LayerServices({
                 { id: 'bmn', label: 'BMN' },
                 { id: 'sawah', label: 'Rice Field' },
                 { id: 'residential', label: 'Residential' },
-              ].map(item => (
+              ].filter(item => {
+                if (selectedGroup === 'kekeringan') {
+                  return item.id === 'sawah';
+                }
+                return true;
+              }).map(item => (
                 <ExposureCard
                   key={item.id}
                   id={item.id}
