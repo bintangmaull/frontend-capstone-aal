@@ -45,8 +45,7 @@ export default function Header() {
         {/* Left: Logo Area */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 pr-3 border-r border-white/10">
-            <img src="/logoitb.png" alt="ITB" className="h-6 w-auto" />
-            <img src="/logobali.png" alt="Bali" className="h-6 w-auto" />
+            <img src="/logocatalyst.png" alt="Catalyst" className="h-7 w-auto" />
           </div>
           <Link href="/" className="flex items-center leading-none">
             <h1 className="flex flex-col md:flex-row md:items-center items-start leading-none tracking-tighter">
