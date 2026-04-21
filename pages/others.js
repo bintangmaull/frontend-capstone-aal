@@ -81,6 +81,7 @@ const kajianList = [
     color: 'from-slate-500/20 to-gray-500/10',
     border: 'border-slate-500/20',
     tag: 'Road Impact',
+    href: '/others/jalan-terdampak',
   },
 ];
 

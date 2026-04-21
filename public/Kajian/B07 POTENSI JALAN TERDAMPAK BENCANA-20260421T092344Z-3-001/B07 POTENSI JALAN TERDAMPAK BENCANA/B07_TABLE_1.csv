@@ -1,0 +1,91 @@
+Jenis Jalan,Jenis Bahaya,Periode Ulang (tahun),Skenario Perubahan Iklim,Kelas Bahaya,Keterangan Kelas Bahaya,Panjang Jalan Terdampak (m)
+Daerah,Banjir,10,0,Rendah,< 1 m,251189.6565
+Daerah,Banjir,10,0,Sedang,1 - 2 m,118817.5599
+Daerah,Banjir,10,0,Tinggi,> 2 m,208016.2055
+Daerah,Banjir,100,0,Rendah,< 1 m,275037.3395
+Daerah,Banjir,100,0,Sedang,1 - 2 m,141692.3418
+Daerah,Banjir,100,0,Tinggi,> 2 m,242512.9628
+Daerah,Banjir,2,0,Rendah,< 1 m,221374.0904
+Daerah,Banjir,2,0,Sedang,1 - 2 m,98644.08862
+Daerah,Banjir,2,0,Tinggi,> 2 m,176203.5868
+Daerah,Banjir,25,0,Rendah,< 1 m,259746.9285
+Daerah,Banjir,25,0,Sedang,1 - 2 m,125749.1357
+Daerah,Banjir,25,0,Tinggi,> 2 m,217821.1786
+Daerah,Banjir,250,0,Rendah,< 1 m,289604.0966
+Daerah,Banjir,250,0,Sedang,1 - 2 m,150836.9064
+Daerah,Banjir,250,0,Tinggi,> 2 m,261060.4674
+Daerah,Banjir,5,0,Rendah,< 1 m,239101.7293
+Daerah,Banjir,5,0,Sedang,1 - 2 m,110771.223
+Daerah,Banjir,5,0,Tinggi,> 2 m,194804.2967
+Daerah,Banjir,50,0,Rendah,< 1 m,269281.4299
+Daerah,Banjir,50,0,Sedang,1 - 2 m,133017.4562
+Daerah,Banjir,50,0,Tinggi,> 2 m,230060.6775
+Daerah,Banjir,10,1,Rendah,< 1 m,261750.4719
+Daerah,Banjir,10,1,Sedang,1 - 2 m,127501.5599
+Daerah,Banjir,10,1,Tinggi,> 2 m,221396.9057
+Daerah,Banjir,100,1,Rendah,< 1 m,291955.7226
+Daerah,Banjir,100,1,Sedang,1 - 2 m,154847.4841
+Daerah,Banjir,100,1,Tinggi,> 2 m,268923.2601
+Daerah,Banjir,2,1,Rendah,< 1 m,225773.9086
+Daerah,Banjir,2,1,Sedang,1 - 2 m,102454.1104
+Daerah,Banjir,2,1,Tinggi,> 2 m,182275.9304
+Daerah,Banjir,25,1,Rendah,< 1 m,271648.8106
+Daerah,Banjir,25,1,Sedang,1 - 2 m,138325.8437
+Daerah,Banjir,25,1,Tinggi,> 2 m,237077.3505
+Daerah,Banjir,250,1,Rendah,< 1 m,302602.1739
+Daerah,Banjir,250,1,Sedang,1 - 2 m,164740.7118
+Daerah,Banjir,250,1,Tinggi,> 2 m,294838.6277
+Daerah,Banjir,5,1,Rendah,< 1 m,249267.4317
+Daerah,Banjir,5,1,Sedang,1 - 2 m,117272.3071
+Daerah,Banjir,5,1,Tinggi,> 2 m,205954.9375
+Daerah,Banjir,50,1,Rendah,< 1 m,281604.1718
+Daerah,Banjir,50,1,Sedang,1 - 2 m,145756.1245
+Daerah,Banjir,50,1,Tinggi,> 2 m,251751.8781
+Daerah,Tsunami,,0,Rendah,< 1 m,260865.1463
+Daerah,Tsunami,,0,Tinggi,> 2 m,705318.0588
+Daerah,Tsunami,,0,Sedang,1 - 2 m,104274.8253
+Nasional,Banjir,10,0,Rendah,< 1 m,30973.90936
+Nasional,Banjir,10,0,Tinggi,> 2 m,17781.32843
+Nasional,Banjir,10,0,Sedang,1 - 2 m,14229.95944
+Nasional,Banjir,100,0,Rendah,< 1 m,34907.3141
+Nasional,Banjir,100,0,Tinggi,> 2 m,21042.30076
+Nasional,Banjir,100,0,Sedang,1 - 2 m,17161.04954
+Nasional,Banjir,2,0,Tinggi,> 2 m,14591.74829
+Nasional,Banjir,2,0,Rendah,< 1 m,26144.1567
+Nasional,Banjir,2,0,Sedang,1 - 2 m,11480.75621
+Nasional,Banjir,25,0,Rendah,< 1 m,32249.9851
+Nasional,Banjir,25,0,Tinggi,> 2 m,18634.52378
+Nasional,Banjir,25,0,Sedang,1 - 2 m,15193.23341
+Nasional,Banjir,250,0,Rendah,< 1 m,39290.28915
+Nasional,Banjir,250,0,Tinggi,> 2 m,24183.12653
+Nasional,Banjir,250,0,Sedang,1 - 2 m,19678.5561
+Nasional,Banjir,5,0,Rendah,< 1 m,28572.24762
+Nasional,Banjir,5,0,Tinggi,> 2 m,16217.79421
+Nasional,Banjir,5,0,Sedang,1 - 2 m,12797.22597
+Nasional,Banjir,50,0,Rendah,< 1 m,35040.70727
+Nasional,Banjir,50,0,Tinggi,> 2 m,20328.19165
+Nasional,Banjir,50,0,Sedang,1 - 2 m,16177.00992
+Nasional,Banjir,10,1,Rendah,< 1 m,33117.52435
+Nasional,Banjir,10,1,Tinggi,> 2 m,18870.82703
+Nasional,Banjir,10,1,Sedang,1 - 2 m,15572.38083
+Nasional,Banjir,100,1,Rendah,< 1 m,38856.69725
+Nasional,Banjir,100,1,Tinggi,> 2 m,23924.17488
+Nasional,Banjir,100,1,Sedang,1 - 2 m,21345.27983
+Nasional,Banjir,2,1,Tinggi,> 2 m,15160.13028
+Nasional,Banjir,2,1,Rendah,< 1 m,26999.56422
+Nasional,Banjir,2,1,Sedang,1 - 2 m,11835.64516
+Nasional,Banjir,25,1,Rendah,< 1 m,35461.37278
+Nasional,Banjir,25,1,Tinggi,> 2 m,21204.20111
+Nasional,Banjir,25,1,Sedang,1 - 2 m,16948.11503
+Nasional,Banjir,250,1,Rendah,< 1 m,41034.40451
+Nasional,Banjir,250,1,Tinggi,> 2 m,26168.87337
+Nasional,Banjir,250,1,Sedang,1 - 2 m,22588.35724
+Nasional,Banjir,5,1,Rendah,< 1 m,30921.85429
+Nasional,Banjir,5,1,Tinggi,> 2 m,17895.6886
+Nasional,Banjir,5,1,Sedang,1 - 2 m,13690.09082
+Nasional,Banjir,50,1,Rendah,< 1 m,36611.28495
+Nasional,Banjir,50,1,Tinggi,> 2 m,21879.30381
+Nasional,Banjir,50,1,Sedang,1 - 2 m,18600.35964
+Nasional,Tsunami,,0,Sedang,1 - 2 m,11252.12388
+Nasional,Tsunami,,0,Rendah,< 1 m,47556.82122
+Nasional,Tsunami,,0,Tinggi,> 2 m,96749.66449
