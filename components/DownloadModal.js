@@ -28,7 +28,7 @@ export default function DownloadModal({
     gempa: true,
     banjir: true,
     tsunami: true,
-    aal: true
+    aal: false
   })
   const [isProcessing, setIsProcessing] = useState(false)
   const [mapCaptureUrl, setMapCaptureUrl] = useState(null)
@@ -37,9 +37,7 @@ export default function DownloadModal({
   useEffect(() => {
     if (isOpen) {
       setDownloadType(initialType)
-      if (initialType === 'map_chart') setFormat('png')
-      else if (initialType === 'map_layout') setFormat('pdf')
-      else if (format === 'png' || format === 'pdf') setFormat('csv')
+      setFormat('csv')
     }
   }, [isOpen, initialType])
 
@@ -55,10 +53,6 @@ export default function DownloadModal({
           downloadCityData()
         } else if (downloadType === 'sawah') {
           downloadSawahData()
-        } else if (downloadType === 'map_chart') {
-          await captureCharts()
-        } else if (downloadType === 'map_layout') {
-          await exportMapLayoutPDF()
         }
         onClose()
       } catch (err) {
@@ -68,76 +62,6 @@ export default function DownloadModal({
         setIsProcessing(false)
       }
     }, 500)
-  }
-
-  const exportMapLayoutPDF = async () => {
-    // 1. Capture the raw map first
-    const mapElement = document.getElementById('map')
-    if (!mapElement) {
-      alert('Map container not found.')
-      return
-    }
-
-    try {
-      // Temporarily hide map controls for cleaner capture
-      const controls = mapElement.querySelectorAll('.leaflet-control-container')
-      controls.forEach(c => c.style.display = 'none')
-
-      const mapCanvas = await toCanvas(mapElement, {
-        pixelRatio: 2,
-        backgroundColor: darkMode ? '#0F1115' : '#FFFFFF'
-      })
-      
-      controls.forEach(c => c.style.display = 'block')
-      const mapImg = mapCanvas.toDataURL('image/png')
-      setMapCaptureUrl(mapImg)
-
-      // 2. Wait for React to render the hidden Layout with the new image
-      // We use a small delay or a separate useEffect, but for simplicity here:
-      await new Promise(r => setTimeout(r, 500))
-
-      const layoutCanvas = await toCanvas(layoutElement, {
-        pixelRatio: 2,
-        backgroundColor: '#FFFFFF'
-      })
-
-      const pdf = new jsPDF('l', 'mm', 'a4') // Landscape, mm, A4
-      const imgData = layoutCanvas.toDataURL('image/png')
-      const imgProps = pdf.getImageProperties(imgData)
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(`layout_peta_risiko_${new Date().toISOString().split('T')[0]}.pdf`)
-      
-      setMapCaptureUrl(null)
-    } catch (error) {
-      console.error('PDF Export failed:', error)
-      alert('Gagal mengekspor PDF.')
-    }
-  }
-
-  const captureCharts = async () => {
-    // Strategy: If there's a specific chart target, capture that. Otherwise capture everything.
-    const exportTarget = document.getElementById('aal-comparison-chart') || 
-                         document.getElementById('exposure-distribution-chart') || 
-                         document.querySelector('.recharts-wrapper')?.parentElement ||
-                         document.body
-
-    try {
-      const dataUrl = await toPng(exportTarget, {
-        backgroundColor: darkMode ? '#0F1115' : '#FFFFFF',
-        pixelRatio: 2,
-      })
-      
-      const link = document.createElement('a')
-      link.download = `capture_risiko_${new Date().toISOString().split('T')[0]}.png`
-      link.href = dataUrl
-      link.click()
-    } catch (error) {
-      console.error('Capture failed:', error)
-      throw error
-    }
   }
 
   const downloadBuildingData = () => {
@@ -464,13 +388,6 @@ export default function DownloadModal({
             <Key size={14} strokeWidth={3} />
             Masuk Sekarang
           </button>
-          
-          <button 
-            onClick={() => setDownloadType('map_chart')}
-            className={`text-[10px] font-black uppercase tracking-widest underline decoration-2 underline-offset-4 ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'}`}
-          >
-            Atau tetap Capture Grafik (Gratis)
-          </button>
         </div>
       </Modal>
     )
@@ -512,21 +429,17 @@ export default function DownloadModal({
                 { id: 'building', label: 'Data Bangunan (Detailed)', icon: Database },
                 { id: 'city', label: 'Ringkasan Kota/Kabupaten', icon: FileText },
                 { id: 'sawah', label: 'Data Sawah/Pertanian', icon: MapIcon },
-                { id: 'map_chart', label: 'Capture Grafik & Peta', icon: BarChart3 },
-                { id: 'map_layout', label: 'Layout Peta Profesional (PDF)', icon: Printer },
               ].map(item => (
                 <button
                   key={item.id}
                   onClick={() => {
                     setDownloadType(item.id)
-                    if (item.id === 'map_chart') setFormat('png')
-                    else if (item.id === 'map_layout') setFormat('pdf')
-                    else if (format === 'png' || format === 'pdf') setFormat('csv')
+                    setFormat('csv')
                   }}
                   className={`flex items-center gap-3 p-3 rounded-2xl border transition-all duration-300 ${
                     downloadType === item.id 
                       ? (darkMode ? 'bg-blue-500/10 border-blue-500 text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.1)]' : 'bg-blue-50 border-blue-200 text-blue-600')
-                      : (darkMode ? 'bg-white/[0.02] border-white/5 hover:border-white/10 text-gray-400' : 'bg-slate-50 border-slate-100 hover:border-slate-200 text-slate-500')
+                      : (darkMode ? 'bg-white/[0.02] border-white/5 hover:border-white/10 text-gray-400' : 'bg-slate-50 border-slate-100 hover:border-slate-200 text-slate-700')
                   }`}
                 >
                   <item.icon size={18} />
@@ -607,7 +520,6 @@ export default function DownloadModal({
                     { id: 'gempa', label: 'Direct Loss Gempa' },
                     { id: 'banjir', label: 'Direct Loss Banjir' },
                     { id: 'tsunami', label: 'Direct Loss Tsunami' },
-                    { id: 'aal', label: 'Informasi AAL' },
                   ].map(col => (
                     <button
                       key={col.id}
@@ -625,26 +537,7 @@ export default function DownloadModal({
                 </div>
               </div>
             )}
-            
-            {downloadType === 'map_layout' && (
-              <div className={`p-4 rounded-2xl border flex flex-col gap-2 ${darkMode ? 'bg-blue-500/5 border-blue-500/10 text-blue-200/60' : 'bg-blue-50 border-blue-100 text-blue-700'}`}>
-                <div className="flex items-center gap-2">
-                  <Printer size={16} />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Layout PDF</span>
-                </div>
-                <p className="text-[11px] leading-relaxed font-medium">
-                  Mencetak peta saat ini ke dalam format tata letak kartografi profesional (A4 Landscape) lengkap dengan legenda dan skala.
-                </p>
-              </div>
-            )}
           </div>
-        </div>
-
-        <div className={`p-4 rounded-2xl border flex gap-3 mt-6 ${darkMode ? 'bg-amber-500/5 border-amber-500/10 text-amber-200/60' : 'bg-amber-50 border-amber-100 text-amber-700'}`}>
-          <AlertCircle size={18} className="shrink-0 mt-0.5" />
-          <p className="text-[11px] leading-relaxed font-medium">
-            Pastikan layer yang ingin Anda tampilkan pada peta sudah aktif sebelum melakukan export layout.
-          </p>
         </div>
 
         <div className="flex gap-3 mt-6">
