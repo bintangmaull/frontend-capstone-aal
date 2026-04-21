@@ -10,6 +10,8 @@ import DroughtAALChartPanel from './DroughtAALChartPanel';
 import FloodAALSawahChartPanel from './FloodAALSawahChartPanel';
 import FloodAALBuildingChartPanel from './FloodAALBuildingChartPanel';
 import GempaAALChartPanel from './GempaAALChartPanel';
+import TsunamiModelPanel from './TsunamiModelPanel';
+
 
 const formatUSD = (v) => {
   if (!v && v !== 0) return '-';
@@ -3115,6 +3117,8 @@ const ReactLegendOverlay = ({
                       selectedCityFeature={selectedCityFeature}
                       onOpenDownload={onOpenDownload}
                     />
+                  ) : selectedGroup === 'tsunami' ? (
+                    <TsunamiModelPanel selectedCityFeature={selectedCityFeature} />
                   ) : (
                     <AALChartPanel
                       boundaryData={boundaryDataAAL}
@@ -3125,6 +3129,7 @@ const ReactLegendOverlay = ({
                       onOpenTable={onOpenTable}
                     />
                   )
+
                 )
               )}
             </div>

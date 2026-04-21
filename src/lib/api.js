@@ -214,3 +214,11 @@ export function processCurveBanjirR() {
 export function processCurveBanjirRC() {
   return fetchJSON('/process_kurva_banjir_rc', { method: 'GET' })
 }
+
+// Tsunami Risk Metrics
+export function getTsunamiRiskMetrics(kota) {
+  const url = kota 
+    ? `/api/tsunami-risk-metrics?kota=${encodeURIComponent(kota)}` 
+    : '/api/tsunami-risk-metrics'
+  return fetchJSON(url)
+}

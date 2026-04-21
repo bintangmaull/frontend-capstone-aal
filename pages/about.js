@@ -112,7 +112,7 @@ export default function About() {
               ))}
             </div>
           </section>
-
+          
           {/* Mission Conclusion */}
           <section className={`w-full max-w-4xl p-10 rounded-[3rem] border transition-all text-center relative overflow-hidden group ${darkMode ? 'bg-blue-600/5 border-blue-500/20' : 'bg-blue-50 border-blue-100 shadow-inner'
             }`}>

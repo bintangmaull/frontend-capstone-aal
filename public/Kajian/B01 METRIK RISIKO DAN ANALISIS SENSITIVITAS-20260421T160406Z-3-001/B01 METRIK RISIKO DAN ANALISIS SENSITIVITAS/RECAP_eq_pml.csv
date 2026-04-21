@@ -1,0 +1,316 @@
+Regency/City,Exposure,Earthquake Return Period (year),PML (IDR),PML (USD)
+Badung,Airport,100,82101637.99,4926.1
+Bangli,Airport,100,,
+Buleleng,Airport,100,229903.25,13.79
+Denpasar City,Airport,100,,
+Gianyar,Airport,100,,
+Jembrana,Airport,100,,
+Karangasem,Airport,100,,
+Klungkung,Airport,100,,
+Tabanan,Airport,100,,
+Badung,Airport,200,312680656.11,18760.84
+Bangli,Airport,200,,
+Buleleng,Airport,200,3932403.55,235.94
+Denpasar City,Airport,200,,
+Gianyar,Airport,200,,
+Jembrana,Airport,200,,
+Karangasem,Airport,200,,
+Klungkung,Airport,200,,
+Tabanan,Airport,200,,
+Badung,Airport,250,402622789.88,24157.37
+Bangli,Airport,250,,
+Buleleng,Airport,250,5368092.63,322.09
+Denpasar City,Airport,250,,
+Gianyar,Airport,250,,
+Jembrana,Airport,250,,
+Karangasem,Airport,250,,
+Klungkung,Airport,250,,
+Tabanan,Airport,250,,
+Badung,Airport,500,1530737605.38,91844.26
+Bangli,Airport,500,,
+Buleleng,Airport,500,30837769.2,1850.27
+Denpasar City,Airport,500,,
+Gianyar,Airport,500,,
+Jembrana,Airport,500,,
+Karangasem,Airport,500,,
+Klungkung,Airport,500,,
+Tabanan,Airport,500,,
+Badung,Airport,1000,6220683304.16,373241.0
+Bangli,Airport,1000,,
+Buleleng,Airport,1000,68435048.75,4106.1
+Denpasar City,Airport,1000,,
+Gianyar,Airport,1000,,
+Jembrana,Airport,1000,,
+Karangasem,Airport,1000,,
+Klungkung,Airport,1000,,
+Tabanan,Airport,1000,,
+Badung,Educational Facilities,100,47941039186.3,2876462.35
+Bangli,Educational Facilities,100,3468605383.7,208116.32
+Buleleng,Educational Facilities,100,11847640929.65,710858.46
+Denpasar City,Educational Facilities,100,55462424464.8,3327745.47
+Gianyar,Educational Facilities,100,9194620451.2,551677.23
+Jembrana,Educational Facilities,100,4652481911.4,279148.91
+Karangasem,Educational Facilities,100,9212125889.7,552727.55
+Klungkung,Educational Facilities,100,5087118009.2,305227.08
+Tabanan,Educational Facilities,100,5796224315.93,347773.46
+Badung,Educational Facilities,200,96725098737.0,5803505.92
+Bangli,Educational Facilities,200,8316875776.0,499012.55
+Buleleng,Educational Facilities,200,28546563899.2,1712793.83
+Denpasar City,Educational Facilities,200,122355148573.0,7341308.91
+Gianyar,Educational Facilities,200,22875432241.0,1372525.93
+Jembrana,Educational Facilities,200,12657506366.0,759450.38
+Karangasem,Educational Facilities,200,19307061963.0,1158423.72
+Klungkung,Educational Facilities,200,12679752283.0,760785.14
+Tabanan,Educational Facilities,200,17098291150.0,1025897.47
+Badung,Educational Facilities,250,113924931250.0,6835495.88
+Bangli,Educational Facilities,250,10525536373.0,631532.18
+Buleleng,Educational Facilities,250,36251503314.1,2175090.2
+Denpasar City,Educational Facilities,250,154037758130.0,9242265.49
+Gianyar,Educational Facilities,250,28728134750.0,1723688.09
+Jembrana,Educational Facilities,250,16448066722.0,986884.0
+Karangasem,Educational Facilities,250,24846460883.0,1490787.65
+Klungkung,Educational Facilities,250,17135746150.0,1028144.77
+Tabanan,Educational Facilities,250,21876915742.0,1312614.94
+Badung,Educational Facilities,500,218143492670.0,13088609.56
+Bangli,Educational Facilities,500,23141788230.0,1388507.29
+Buleleng,Educational Facilities,500,70086160471.0,4205169.63
+Denpasar City,Educational Facilities,500,250852323510.0,15051139.41
+Gianyar,Educational Facilities,500,57049549500.0,3422972.97
+Jembrana,Educational Facilities,500,34438256660.0,2066295.4
+Karangasem,Educational Facilities,500,51082554870.0,3064953.29
+Klungkung,Educational Facilities,500,34374001220.0,2062440.07
+Tabanan,Educational Facilities,500,50518888201.0,3031133.29
+Badung,Educational Facilities,1000,342734320360.0,20564059.22
+Bangli,Educational Facilities,1000,43684871400.0,2621092.28
+Buleleng,Educational Facilities,1000,131623108740.0,7897386.52
+Denpasar City,Educational Facilities,1000,373352869700.0,22401172.18
+Gianyar,Educational Facilities,1000,97594031300.0,5855641.88
+Jembrana,Educational Facilities,1000,77323926600.0,4639435.6
+Karangasem,Educational Facilities,1000,97136371270.0,5828182.28
+Klungkung,Educational Facilities,1000,63794210000.0,3827652.6
+Tabanan,Educational Facilities,1000,84932725650.0,5095963.54
+Badung,Electricity,100,31130400000.0,1867824.0
+Bangli,Electricity,100,,
+Buleleng,Electricity,100,12991100000.0,779466.0
+Denpasar City,Electricity,100,8867540000.0,532052.4
+Gianyar,Electricity,100,11256300000.0,675378.0
+Jembrana,Electricity,100,7299560000.0,437973.6
+Karangasem,Electricity,100,11222000000.0,673320.0
+Klungkung,Electricity,100,786747000.0,47204.82
+Tabanan,Electricity,100,14649700000.0,878982.0
+Badung,Electricity,200,58199800000.0,3491988.0
+Bangli,Electricity,200,,
+Buleleng,Electricity,200,27939900000.0,1676394.0
+Denpasar City,Electricity,200,21990000000.0,1319400.0
+Gianyar,Electricity,200,29495500000.0,1769730.0
+Jembrana,Electricity,200,21266300000.0,1275978.0
+Karangasem,Electricity,200,16422500000.0,985350.0
+Klungkung,Electricity,200,1457120000.0,87427.2
+Tabanan,Electricity,200,23497000000.0,1409820.0
+Badung,Electricity,250,64145400000.0,3848724.0
+Bangli,Electricity,250,,
+Buleleng,Electricity,250,29069300000.0,1744158.0
+Denpasar City,Electricity,250,31237600000.0,1874256.0
+Gianyar,Electricity,250,30326500000.0,1819590.0
+Jembrana,Electricity,250,24499600000.0,1469976.0
+Karangasem,Electricity,250,19716800000.0,1183008.0
+Klungkung,Electricity,250,1796790000.0,107807.4
+Tabanan,Electricity,250,27626500000.0,1657590.0
+Badung,Electricity,500,94030200000.0,5641812.0
+Bangli,Electricity,500,,
+Buleleng,Electricity,500,51423400000.0,3085404.0
+Denpasar City,Electricity,500,54847900000.0,3290874.0
+Gianyar,Electricity,500,39159100000.0,2349546.0
+Jembrana,Electricity,500,33946300000.0,2036778.0
+Karangasem,Electricity,500,24869000000.0,1492140.0
+Klungkung,Electricity,500,3042720000.0,182563.2
+Tabanan,Electricity,500,42478700000.0,2548722.0
+Badung,Electricity,1000,146956000000.0,8817360.0
+Bangli,Electricity,1000,,
+Buleleng,Electricity,1000,53471300000.0,3208278.0
+Denpasar City,Electricity,1000,58362700000.0,3501762.0
+Gianyar,Electricity,1000,42531900000.0,2551914.0
+Jembrana,Electricity,1000,43359400000.0,2601564.0
+Karangasem,Electricity,1000,41106400000.0,2466384.0
+Klungkung,Electricity,1000,5609460000.0,336567.6
+Tabanan,Electricity,1000,56439100000.0,3386346.0
+Badung,Healthcare Facilities,100,1440861.9,86.45
+Bangli,Healthcare Facilities,100,962162.8,57.73
+Buleleng,Healthcare Facilities,100,10668970296.0,640138.22
+Denpasar City,Healthcare Facilities,100,2441634.1,146.5
+Gianyar,Healthcare Facilities,100,1183910.8,71.03
+Jembrana,Healthcare Facilities,100,297910.71,17.87
+Karangasem,Healthcare Facilities,100,1605232.9,96.31
+Klungkung,Healthcare Facilities,100,1515493.3,90.93
+Tabanan,Healthcare Facilities,100,1812959.1,108.78
+Badung,Healthcare Facilities,200,11750328.0,705.02
+Bangli,Healthcare Facilities,200,12658346.0,759.5
+Buleleng,Healthcare Facilities,200,28298170131.0,1697890.21
+Denpasar City,Healthcare Facilities,200,17101373.0,1026.08
+Gianyar,Healthcare Facilities,200,14218189.0,853.09
+Jembrana,Healthcare Facilities,200,3079293.0,184.76
+Karangasem,Healthcare Facilities,200,19048034.0,1142.88
+Klungkung,Healthcare Facilities,200,15938308.0,956.3
+Tabanan,Healthcare Facilities,200,16026224.0,961.57
+Badung,Healthcare Facilities,250,23954702.0,1437.28
+Bangli,Healthcare Facilities,250,22215316.0,1332.92
+Buleleng,Healthcare Facilities,250,39292426956.0,2357545.62
+Denpasar City,Healthcare Facilities,250,35848607.0,2150.92
+Gianyar,Healthcare Facilities,250,25022410.0,1501.34
+Jembrana,Healthcare Facilities,250,6809544.0,408.57
+Karangasem,Healthcare Facilities,250,32761571.0,1965.69
+Klungkung,Healthcare Facilities,250,28313455.0,1698.81
+Tabanan,Healthcare Facilities,250,32472923.0,1948.38
+Badung,Healthcare Facilities,500,95065400.0,5703.92
+Bangli,Healthcare Facilities,500,117348140.0,7040.89
+Buleleng,Healthcare Facilities,500,74197325610.0,4451839.54
+Denpasar City,Healthcare Facilities,500,112018390.0,6721.1
+Gianyar,Healthcare Facilities,500,157103440.0,9426.21
+Jembrana,Healthcare Facilities,500,56488960.0,3389.34
+Karangasem,Healthcare Facilities,500,137571781.0,8254.31
+Klungkung,Healthcare Facilities,500,130059990.0,7803.6
+Tabanan,Healthcare Facilities,500,194493625.0,11669.62
+Badung,Healthcare Facilities,1000,310088550.0,18605.31
+Bangli,Healthcare Facilities,1000,311835600.0,18710.14
+Buleleng,Healthcare Facilities,1000,138028153010.0,8281689.18
+Denpasar City,Healthcare Facilities,1000,474669610.0,28480.18
+Gianyar,Healthcare Facilities,1000,514662900.0,30879.77
+Jembrana,Healthcare Facilities,1000,206642300.0,12398.54
+Karangasem,Healthcare Facilities,1000,430624140.0,25837.45
+Klungkung,Healthcare Facilities,1000,389648510.0,23378.91
+Tabanan,Healthcare Facilities,1000,808424700.0,48505.48
+Badung,Hotel,100,16856700000000.0,1011402000.0
+Bangli,Hotel,100,153507000000.0,9210420.0
+Buleleng,Hotel,100,1031460000000.0,61887600.0
+Denpasar City,Hotel,100,34636400000.0,2078184.0
+Gianyar,Hotel,100,3262470000000.0,195748200.0
+Jembrana,Hotel,100,100409000000.0,6024540.0
+Karangasem,Hotel,100,1346480000000.0,80788800.0
+Klungkung,Hotel,100,937348000000.0,56240880.0
+Tabanan,Hotel,100,366238000000.0,21974280.0
+Badung,Hotel,200,31207500000000.0,1872450000.0
+Bangli,Hotel,200,341695000000.0,20501700.0
+Buleleng,Hotel,200,2158570000000.0,129514200.0
+Denpasar City,Hotel,200,72588700000.0,4355322.0
+Gianyar,Hotel,200,9646190000000.0,578771400.0
+Jembrana,Hotel,200,208769000000.0,12526140.0
+Karangasem,Hotel,200,2179970000000.0,130798200.0
+Klungkung,Hotel,200,2307860000000.0,138471600.0
+Tabanan,Hotel,200,895598000000.0,53735880.0
+Badung,Hotel,250,45430500000000.0,2725830000.0
+Bangli,Hotel,250,360083000000.0,21604980.0
+Buleleng,Hotel,250,2261940000000.0,135716400.0
+Denpasar City,Hotel,250,90682200000.0,5440932.0
+Gianyar,Hotel,250,12374200000000.0,742452000.0
+Jembrana,Hotel,250,256587000000.0,15395220.0
+Karangasem,Hotel,250,2337200000000.0,140232000.0
+Klungkung,Hotel,250,2576990000000.0,154619400.0
+Tabanan,Hotel,250,917638000000.0,55058280.0
+Badung,Hotel,500,54763600000000.0,3285816000.0
+Bangli,Hotel,500,523061000000.0,31383660.0
+Buleleng,Hotel,500,2819170000000.0,169150200.0
+Denpasar City,Hotel,500,131834000000.0,7910040.0
+Gianyar,Hotel,500,14255600000000.0,855336000.0
+Jembrana,Hotel,500,579802000000.0,34788120.0
+Karangasem,Hotel,500,3234820000000.0,194089200.0
+Klungkung,Hotel,500,4143150000000.0,248589000.0
+Tabanan,Hotel,500,1223900000000.0,73434000.0
+Badung,Hotel,1000,67496400000000.0,4049784000.0
+Bangli,Hotel,1000,658809000000.0,39528540.0
+Buleleng,Hotel,1000,3780500000000.0,226830000.0
+Denpasar City,Hotel,1000,258265000000.0,15495900.0
+Gianyar,Hotel,1000,17894100000000.0,1073646000.0
+Jembrana,Hotel,1000,1024200000000.0,61452000.0
+Karangasem,Hotel,1000,4983170000000.0,298990200.0
+Klungkung,Hotel,1000,5950040000000.0,357002400.0
+Tabanan,Hotel,1000,1528190000000.0,91691400.0
+Badung,House,100,197769000000.0,11866140.0
+Bangli,House,100,154748000000.0,9284880.0
+Buleleng,House,100,518032000000.0,31081920.0
+Denpasar City,House,100,396490000000.0,23789400.0
+Gianyar,House,100,243679000000.0,14620740.0
+Jembrana,House,100,223035000000.0,13382100.0
+Karangasem,House,100,366778000000.0,22006680.0
+Klungkung,House,100,95408900000.0,5724534.0
+Tabanan,House,100,391949000000.0,23516940.0
+Badung,House,200,469590000000.0,28175400.0
+Bangli,House,200,318456000000.0,19107360.0
+Buleleng,House,200,1456720000000.0,87403200.0
+Denpasar City,House,200,874624000000.0,52477440.0
+Gianyar,House,200,449443000000.0,26966580.0
+Jembrana,House,200,487029000000.0,29221740.0
+Karangasem,House,200,796295000000.0,47777700.0
+Klungkung,House,200,239557000000.0,14373420.0
+Tabanan,House,200,859216000000.0,51552960.0
+Badung,House,250,540352000000.0,32421120.0
+Bangli,House,250,423522000000.0,25411320.0
+Buleleng,House,250,1921310000000.0,115278600.0
+Denpasar City,House,250,913621000000.0,54817260.0
+Gianyar,House,250,514791000000.0,30887460.0
+Jembrana,House,250,563381000000.0,33802860.0
+Karangasem,House,250,941345000000.0,56480700.0
+Klungkung,House,250,320162000000.0,19209720.0
+Tabanan,House,250,1058590000000.0,63515400.0
+Badung,House,500,1602330000000.0,96139800.0
+Bangli,House,500,507595000000.0,30455700.0
+Buleleng,House,500,2876610000000.0,172596600.0
+Denpasar City,House,500,1855950000000.0,111357000.0
+Gianyar,House,500,956751000000.0,57405060.0
+Jembrana,House,500,976087000000.0,58565220.0
+Karangasem,House,500,1187040000000.0,71222400.0
+Klungkung,House,500,482855000000.0,28971300.0
+Tabanan,House,500,1342570000000.0,80554200.0
+Badung,House,1000,1736380000000.0,104182800.0
+Bangli,House,1000,1342610000000.0,80556600.0
+Buleleng,House,1000,3699160000000.0,221949600.0
+Denpasar City,House,1000,2025770000000.0,121546200.0
+Gianyar,House,1000,1320840000000.0,79250400.0
+Jembrana,House,1000,1341740000000.0,80504400.0
+Karangasem,House,1000,1326680000000.0,79600800.0
+Klungkung,House,1000,847931000000.0,50875860.0
+Tabanan,House,1000,1866450000000.0,111987000.0
+Badung,State-owned Building (BMN),100,3086060000.0,185163.6
+Bangli,State-owned Building (BMN),100,452433000.0,27145.98
+Buleleng,State-owned Building (BMN),100,9947200000.0,596832.0
+Denpasar City,State-owned Building (BMN),100,27180100000.0,1630806.0
+Gianyar,State-owned Building (BMN),100,1022430000.0,61345.8
+Jembrana,State-owned Building (BMN),100,4936980000.0,296218.8
+Karangasem,State-owned Building (BMN),100,1042930000.0,62575.8
+Klungkung,State-owned Building (BMN),100,404631000.0,24277.86
+Tabanan,State-owned Building (BMN),100,6485130000.0,389107.8
+Badung,State-owned Building (BMN),200,10590100000.0,635406.0
+Bangli,State-owned Building (BMN),200,749631000.0,44977.86
+Buleleng,State-owned Building (BMN),200,15888900000.0,953334.0
+Denpasar City,State-owned Building (BMN),200,90143400000.0,5408604.0
+Gianyar,State-owned Building (BMN),200,2418620000.0,145117.2
+Jembrana,State-owned Building (BMN),200,11510400000.0,690624.0
+Karangasem,State-owned Building (BMN),200,1772470000.0,106348.2
+Klungkung,State-owned Building (BMN),200,1141950000.0,68517.0
+Tabanan,State-owned Building (BMN),200,13897800000.0,833868.0
+Badung,State-owned Building (BMN),250,10957100000.0,657426.0
+Bangli,State-owned Building (BMN),250,756249000.0,45374.94
+Buleleng,State-owned Building (BMN),250,17442400000.0,1046544.0
+Denpasar City,State-owned Building (BMN),250,120632000000.0,7237920.0
+Gianyar,State-owned Building (BMN),250,2976760000.0,178605.6
+Jembrana,State-owned Building (BMN),250,15432200000.0,925932.0
+Karangasem,State-owned Building (BMN),250,1836300000.0,110178.0
+Klungkung,State-owned Building (BMN),250,1426060000.0,85563.6
+Tabanan,State-owned Building (BMN),250,20308300000.0,1218498.0
+Badung,State-owned Building (BMN),500,20857500000.0,1251450.0
+Bangli,State-owned Building (BMN),500,1102370000.0,66142.2
+Buleleng,State-owned Building (BMN),500,22560500000.0,1353630.0
+Denpasar City,State-owned Building (BMN),500,209512000000.0,12570720.0
+Gianyar,State-owned Building (BMN),500,4547840000.0,272870.4
+Jembrana,State-owned Building (BMN),500,29232300000.0,1753938.0
+Karangasem,State-owned Building (BMN),500,4279070000.0,256744.2
+Klungkung,State-owned Building (BMN),500,1838830000.0,110329.8
+Tabanan,State-owned Building (BMN),500,43674400000.0,2620464.0
+Badung,State-owned Building (BMN),1000,42722100000.0,2563326.0
+Bangli,State-owned Building (BMN),1000,2623290000.0,157397.4
+Buleleng,State-owned Building (BMN),1000,42366000000.0,2541960.0
+Denpasar City,State-owned Building (BMN),1000,345032000000.0,20701920.0
+Gianyar,State-owned Building (BMN),1000,5707000000.0,342420.0
+Jembrana,State-owned Building (BMN),1000,30042400000.0,1802544.0
+Karangasem,State-owned Building (BMN),1000,7653420000.0,459205.2
+Klungkung,State-owned Building (BMN),1000,2194480000.0,131668.8
+Tabanan,State-owned Building (BMN),1000,100244000000.0,6014640.0

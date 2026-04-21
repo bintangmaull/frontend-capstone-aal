@@ -510,6 +510,8 @@ export default function LayerServices({
                       <option value="electricity" className={darkMode ? 'bg-[#1A1D21]' : ''}>Electricity</option>
                       <option value="airport" className={darkMode ? 'bg-[#1A1D21]' : ''}>Airport</option>
                       <option value="hotel" className={darkMode ? 'bg-[#1A1D21]' : ''}>Hotel</option>
+                      <option value="bmn" className={darkMode ? 'bg-[#1A1D21]' : ''}>BMN</option>
+                      <option value="residential" className={darkMode ? 'bg-[#1A1D21]' : ''}>Residential</option>
                     </select>
 
                     {/* Climate Scenario Selector for Building AAL */}
