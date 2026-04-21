@@ -39,7 +39,7 @@ const kajianList = [
     iconBg: 'bg-violet-500/10',
     border: 'border-violet-500/20',
     tag: 'Risk Metrics',
-    href: '/others/metrik-risiko',
+    href: '/others/metrik risiko',
   },
   {
     id: 3,
