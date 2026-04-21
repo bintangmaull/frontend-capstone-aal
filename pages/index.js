@@ -41,7 +41,7 @@ export default function Home() {
 
           {/* Mission Quote */}
           <div className="flex flex-col items-center pt-8 space-y-4">
-            <p className={`text-xl md:text-3xl font-black italic tracking-tighter ${darkMode ? 'text-gray-200' : 'text-slate-800'}`}>
+            <p className={`text-lg md:text-xl font-black italic tracking-tighter ${darkMode ? 'text-gray-200' : 'text-slate-800'}`}>
               “Memahami risiko untuk mendukung mitigasi yang lebih efektif.”
             </p>
             <div className="h-1 w-24 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
