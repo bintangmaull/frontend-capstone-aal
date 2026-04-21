@@ -2,9 +2,10 @@
 import Header from '../../components/Header';
 import { useTheme } from '../../context/ThemeContext';
 import { useRouter } from 'next/router';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
-// ── inline data from CSVs ──────────────────────────────────────────────────
+// ── static data ────────────────────────────────────────────────────────────
 const table1 = {
   caption: 'Tabel 1. Ringkasan populasi terdampak berdasarkan jenis bahaya',
   headers: ['Impact Category', 'Flood R25', 'Flood R250', 'Flood RC25', 'Flood RC250', 'Tsunami', 'Earthquake'],
@@ -49,51 +50,50 @@ const table3 = {
   ],
 };
 
-const table4 = {
-  caption: 'Tabel 4. Rata-rata rumah tangga terdampak berdasarkan Kabupaten',
-  headers: ['Regency/City', 'Flood', 'Tsunami', 'Earthquake'],
-  rows: [
-    ['Badung', '4,284', '5,096', '8'],
-    ['Bangli', '319', '0', '1'],
-    ['Buleleng', '616', '0', '4'],
-    ['Denpasar City', '1,428', '11,258', '16'],
-    ['Gianyar', '583', '2,922', '4'],
-    ['Jembrana', '1,167', '4,208', '4'],
-    ['Karangasem', '461', '296', '7'],
-    ['Klungkung', '140', '2,050', '1'],
-    ['Tabanan', '423', '1,534', '3'],
-    ['Average', '1,047', '3,018', '5'],
-  ],
-};
+const BASE_URL = '/Kajian/B02 POTENSI POPULASI TERDAMPAK BENCANA-20260421T054351Z-3-001/B02 POTENSI POPULASI TERDAMPAK BENCANA';
 
-const table5 = {
-  caption: 'Tabel 5. Rata-rata populasi terdampak di tingkat Desa (Top 20 Sampel)',
-  headers: ['Village', 'District', 'Regency/City', 'Flood (R250)', 'Tsunami', 'Earthquake'],
-  rows: [
-    ['Aan', 'Banjarangkan', 'Klungkung', '54', '0', '0'],
-    ['Ababi', 'Abang', 'Karangasem', '110', '0', '3'],
-    ['Abang', 'Abang', 'Karangasem', '101', '0', '1'],
-    ['Abangsongan', 'Kintamani', 'Bangli', '70', '0', '0'],
-    ['Abian Tuwung', 'Kediri', 'Tabanan', '455', '0', '2'],
-    ['Abianbase', 'Mengwi', 'Badung', '144', '0', '2'],
-    ['Abianbase', 'Gianyar', 'Gianyar', '78', '0', '1'],
-    ['Abiansemal', 'Abiansemal', 'Badung', '178', '0', '2'],
-    ['Abiansemal Dauh Yeh Cani', 'Abiansemal', 'Badung', '132', '0', '2'],
-    ['Abuan', 'Susut', 'Bangli', '142', '0', '2'],
-    ['Abuan', 'Kintamani', 'Bangli', '40', '0', '0'],
-    ['Air Kuning', 'Jembrana', 'Jembrana', '547', '1,780', '1'],
-    ['Akah', 'Klungkung', 'Klungkung', '144', '0', '0'],
-    ['Alasangker', 'Buleleng', 'Buleleng', '160', '0', '2'],
-    ['Ambengan', 'Sukasada', 'Buleleng', '149', '0', '1'],
-    ['Amerta Bhuana', 'Selat', 'Karangasem', '28', '0', '1'],
-    ['Angantaka', 'Abiansemal', 'Badung', '110', '0', '2'],
-    ['Angkah', 'Selemadeg Barat', 'Tabanan', '77', '0', '0'],
-    ['Angseri', 'Baturiti', 'Tabanan', '77', '0', '1'],
-    ['Antap', 'Selemadeg', 'Tabanan', '69', '424', '1'],
-  ],
-};
+// ── utility: parse CSV ─────────────────────────────────────────────────────
+function parseCSV(csvText) {
+  const lines = csvText.split('\n').filter(l => l.trim() !== '');
+  if (lines.length < 2) return null;
 
-const BASE_IMG = '/Kajian/B02 POTENSI POPULASI TERDAMPAK BENCANA-20260421T054351Z-3-001/B02 POTENSI POPULASI TERDAMPAK BENCANA';
+  // Row 1: Group headers
+  const row1 = lines[0].split(',');
+  const groupHeaders = [];
+  let currentGroup = null;
+  let currentCount = 0;
+
+  row1.forEach((cell, i) => {
+    const val = cell.trim();
+    if (val !== '') {
+      if (currentGroup !== null) {
+        groupHeaders.push({ label: currentGroup, span: currentCount });
+      }
+      currentGroup = val;
+      currentCount = 1;
+    } else {
+      if (currentGroup === null) {
+        groupHeaders.push({ label: '', span: 1 });
+      } else {
+        currentCount++;
+      }
+    }
+  });
+  if (currentGroup !== null) {
+    groupHeaders.push({ label: currentGroup, span: currentCount });
+  }
+
+  // Row 2: Sub headers
+  const subHeaders = lines[1].split(',').map(s => s.trim());
+
+  // Rows 3+: Data
+  const data = lines.slice(2).map(line => {
+    // Basic comma handling (not perfect if commas exist in quoted fields, but usually OK for these datasets)
+    return line.split(',').map(row => row.trim());
+  });
+
+  return { groupHeaders, subHeaders, data };
+}
 
 // ── reusable sub-components ────────────────────────────────────────────────
 function SectionHeading({ children, darkMode }) {
@@ -138,13 +138,13 @@ function Figure({ src, caption, darkMode }) {
   );
 }
 
-function DataTable({ table, darkMode }) {
+function DataTable({ title, headers, rows, darkMode, caption }) {
   return (
     <figure className="my-8 flex flex-col items-center gap-3">
       <figcaption className={`text-xs text-center italic max-w-2xl ${
         darkMode ? 'text-slate-400' : 'text-slate-500'
       }`}>
-        {table.caption}
+        {caption || title}
       </figcaption>
       <div className="w-full overflow-x-auto rounded-2xl border" style={{
         borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
@@ -152,7 +152,7 @@ function DataTable({ table, darkMode }) {
         <table className="min-w-full text-xs md:text-sm border-collapse">
           <thead>
             <tr className={darkMode ? 'bg-blue-900/30' : 'bg-blue-50'}>
-              {table.headers.map((h, i) => (
+              {headers.map((h, i) => (
                 <th key={i} className={`px-4 py-3 text-left font-black uppercase tracking-wider text-[10px] ${
                   darkMode ? 'text-blue-300 border-b border-white/10' : 'text-blue-700 border-b border-blue-100'
                 }`}>
@@ -162,7 +162,7 @@ function DataTable({ table, darkMode }) {
             </tr>
           </thead>
           <tbody>
-            {table.rows.map((row, ri) => (
+            {rows.map((row, ri) => (
               <tr key={ri} className={`transition-colors ${
                 ri % 2 === 0
                   ? (darkMode ? 'bg-white/[0.02]' : 'bg-white')
@@ -184,10 +184,130 @@ function DataTable({ table, darkMode }) {
   );
 }
 
+function EnhancedDataTable({ parsedData, caption, darkMode, onFilterChange }) {
+  const [filter, setFilter] = useState('');
+  
+  if (!parsedData) return <div className="p-10 text-center animate-pulse">Loading data...</div>;
+
+  const filteredData = parsedData.data.filter(row => {
+    const regency = row[4] || ''; // Regency/City is the 5th column
+    return regency.toLowerCase().includes(filter.toLowerCase());
+  });
+
+  return (
+    <figure className="my-12 flex flex-col gap-4">
+      <figcaption className={`text-xs text-center italic ${
+        darkMode ? 'text-slate-400' : 'text-slate-500'
+      }`}>
+        {caption}
+      </figcaption>
+
+      {/* Filter UI */}
+      <div className="flex justify-end px-2">
+        <div className="relative w-full max-w-xs transition-all focus-within:max-w-sm">
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
+            darkMode ? 'text-slate-500' : 'text-slate-400'
+          }`} />
+          <input
+            type="text"
+            placeholder="Filter Regency/City..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className={`w-full pl-10 pr-4 py-2 text-sm rounded-xl border focus:ring-2 outline-none transition-all ${
+              darkMode 
+                ? 'bg-slate-900 border-white/10 text-white focus:border-blue-500 focus:ring-blue-500/20' 
+                : 'bg-white border-slate-200 text-slate-900 focus:border-blue-400 focus:ring-blue-200'
+            }`}
+          />
+        </div>
+      </div>
+
+      {/* Table Body with Scroll */}
+      <div className="w-full overflow-hidden rounded-2xl border" style={{
+        borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
+      }}>
+        <div className="overflow-auto max-h-[600px]">
+          <table className="min-w-full text-xs md:text-sm border-collapse">
+            <thead className="sticky top-0 z-10">
+              <tr className={darkMode ? 'bg-[#0a1118]' : 'bg-blue-100'}>
+                {parsedData.groupHeaders.map((gh, i) => (
+                  <th 
+                    key={i} 
+                    colSpan={gh.span}
+                    className={`px-4 py-2 text-center font-black uppercase tracking-widest text-[9px] border-b ${
+                      darkMode ? 'text-blue-300 border-white/10' : 'text-blue-800 border-blue-200'
+                    }`}
+                  >
+                    {gh.label}
+                  </th>
+                ))}
+              </tr>
+              <tr className={darkMode ? 'bg-[#0a1118]' : 'bg-blue-50'}>
+                {parsedData.subHeaders.map((sh, i) => (
+                  <th 
+                    key={i} 
+                    className={`px-4 py-3 text-left font-bold uppercase tracking-wider text-[10px] whitespace-nowrap border-b ${
+                      darkMode ? 'text-blue-400 border-white/10' : 'text-blue-700 border-blue-100'
+                    }`}
+                  >
+                    {sh}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.length > 0 ? (
+                filteredData.map((row, ri) => (
+                  <tr key={ri} className={`transition-colors ${
+                    ri % 2 === 0
+                      ? (darkMode ? 'bg-white/[0.01]' : 'bg-white')
+                      : (darkMode ? 'bg-white/[0.03]' : 'bg-slate-50/50')
+                  } ${darkMode ? 'hover:bg-blue-500/10' : 'hover:bg-blue-50/80'}`}>
+                    {row.map((cell, ci) => (
+                      <td key={ci} className={`px-4 py-2 border-b whitespace-nowrap ${
+                        darkMode ? 'text-slate-300 border-white/5' : 'text-slate-600 border-slate-100'
+                      } ${ci < 6 ? 'font-medium' : ''}`}>
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={parsedData.subHeaders.length} className="px-4 py-10 text-center text-slate-500">
+                    No data matches the filter criteria.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </figure>
+  );
+}
+
 // ── main page ──────────────────────────────────────────────────────────────
 export default function PopulasiTerdampak() {
   const { darkMode } = useTheme();
   const router = useRouter();
+
+  const [table4Data, setTable4Data] = useState(null);
+  const [table5Data, setTable5Data] = useState(null);
+
+  useEffect(() => {
+    // Load Table 4
+    fetch(`${BASE_URL}/B02_TABLE_4.csv`)
+      .then(r => r.text())
+      .then(txt => setTable4Data(parseCSV(txt)))
+      .catch(e => console.error('Error loading table 4:', e));
+
+    // Load Table 5
+    fetch(`${BASE_URL}/B02_TABLE_5.csv`)
+      .then(r => r.text())
+      .then(txt => setTable5Data(parseCSV(txt)))
+      .catch(e => console.error('Error loading table 5:', e));
+  }, []);
 
   return (
     <div className={`min-h-screen transition-colors duration-300 relative overflow-x-hidden ${
@@ -207,7 +327,7 @@ export default function PopulasiTerdampak() {
           style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
       </div>
 
-      <main className="max-w-4xl mx-auto px-6 pt-28 pb-24 md:pt-36">
+      <main className="max-w-6xl mx-auto px-6 pt-28 pb-24 md:pt-36">
         {/* Back button */}
         <button
           onClick={() => router.push('/others')}
@@ -241,7 +361,7 @@ export default function PopulasiTerdampak() {
         </div>
 
         {/* ── CONTENT ────────────────────────────────── */}
-        <article className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <article className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-4xl mx-auto">
           <SectionHeading darkMode={darkMode}>Pendahuluan</SectionHeading>
 
           <Paragraph darkMode={darkMode}>
@@ -268,14 +388,14 @@ export default function PopulasiTerdampak() {
             Estimasi jumlah orang yang terdampak bencana berdasarkan jenis bahaya alam dirangkum dalam Tabel 1. Hasil ini mencakup berbagai parameter demografis yang penting untuk perencanaan evakuasi dan bantuan darurat.
           </Paragraph>
 
-          <DataTable table={table1} darkMode={darkMode} />
+          <DataTable headers={table1.headers} rows={table1.rows} caption={table1.caption} darkMode={darkMode} />
 
           <Paragraph darkMode={darkMode}>
             Distribusi populasi terdampak di seluruh wilayah studi divisualisasikan pada Gambar 1, yang menunjukkan tingkat paparan untuk setiap jenis bahaya yang dianalisis.
           </Paragraph>
 
           <Figure
-            src={`${BASE_IMG}/B02_FIGURE_1.png`}
+            src={`${BASE_URL}/B02_FIGURE_1.png`}
             caption="Gambar 1. Distribusi populasi berdasarkan tingkat paparan dan jenis bahaya"
             darkMode={darkMode}
           />
@@ -284,14 +404,14 @@ export default function PopulasiTerdampak() {
             Selain jumlah total, karakteristik khusus populasi rentan juga dianalisis. Tabel 2 menyajikan persentase rata-rata populasi terdampak yang termasuk dalam kategori disabilitas dan kelompok usia lanjut.
           </Paragraph>
 
-          <DataTable table={table2} darkMode={darkMode} />
+          <DataTable headers={table2.headers} rows={table2.rows} caption={table2.caption} darkMode={darkMode} />
 
           <Paragraph darkMode={darkMode}>
             Visualisasi lebih lanjut mengenai proporsi kelompok rentan ini dalam setiap jenis bahaya dapat dilihat pada Gambar 2.
           </Paragraph>
 
           <Figure
-            src={`${BASE_IMG}/B02_FIGURE_2.png`}
+            src={`${BASE_URL}/B02_FIGURE_2.png`}
             caption="Gambar 2. Distribusi persentase kelompok rentan berdasarkan jenis bahaya"
             darkMode={darkMode}
           />
@@ -300,20 +420,51 @@ export default function PopulasiTerdampak() {
             Ringkasan populasi yang terpapar di berbagai wilayah (tingkat regional) disajikan dalam Tabel 3, yang memungkinkan pembandingan beban risiko antar daerah.
           </Paragraph>
 
-          <DataTable table={table3} darkMode={darkMode} />
+          <DataTable headers={table3.headers} rows={table3.rows} caption={table3.caption} darkMode={darkMode} />
+        </article>
 
-          <Paragraph darkMode={darkMode}>
-            Analisis lebih mendalam dilakukan pada tingkat Kabupaten, dengan rata-rata jumlah rumah tangga terdampak untuk setiap jenis bahaya dirangkum dalam Tabel 4.
-          </Paragraph>
+        {/* FULL DATA TABLES section (wider container) */}
+        <div className="mt-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          <div className="max-w-4xl mx-auto">
+            <Paragraph darkMode={darkMode}>
+              Analisis lebih mendalam pada tingkat desa menyediakan rincian persentase klasifikasi bahaya dan estimasi jumlah orang yang terdampak. Tabel di bawah ini menyajikan seluruh dataset yang dapat difilter berdasarkan Kabupaten/Kota.
+            </Paragraph>
+          </div>
 
-          <DataTable table={table4} darkMode={darkMode} />
+          <EnhancedDataTable 
+            parsedData={table4Data} 
+            caption="Tabel 4. Persentase klasifikasi paparan bahaya di tingkat Desa"
+            darkMode={darkMode}
+          />
 
-          <Paragraph darkMode={darkMode}>
-            Data tingkat mikro disediakan pada tingkat desa, dengan Tabel 5 menunjukkan sampel data estimasi untuk 20 desa pertama dalam dataset.
-          </Paragraph>
+          <EnhancedDataTable 
+            parsedData={table5Data} 
+            caption="Tabel 5. Estimasi jumlah populasi terdampak di tingkat Desa"
+            darkMode={darkMode}
+          />
+        </div>
 
-          <DataTable table={table5} darkMode={darkMode} />
+        <article className="max-w-4xl mx-auto">
+          <SectionHeading darkMode={darkMode}>Referensi</SectionHeading>
 
+          <div className={`p-5 rounded-2xl border text-sm leading-relaxed ${
+            darkMode
+              ? 'bg-white/5 border-white/10 text-slate-400'
+              : 'bg-slate-50 border-slate-200 text-slate-600'
+          }`}>
+            <p>
+              Milyardi, R., Pribadi, K. S., Abduh, M., Meilano, I., Lim, E., Hs, H., &amp; Ansyari, A. (2025). Rehabilitation and reconstruction cost drivers in earthquake-affected buildings: a damage-level-based analysis in Indonesia.{' '}
+              <em>Bulletin of Earthquake Engineering</em>, 23(13), 5469–5493.{' '}
+              <a
+                href="https://doi.org/10.1007/s10518-025-02243-5"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline break-all"
+              >
+                https://doi.org/10.1007/s10518-025-02243-5
+              </a>
+            </p>
+          </div>
         </article>
       </main>
     </div>
