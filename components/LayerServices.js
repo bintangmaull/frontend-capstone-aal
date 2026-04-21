@@ -237,10 +237,15 @@ export default function LayerServices({
   // New props for drought selectors
   droughtAalCC,
   setDroughtAalCC,
+  droughtAalYear,
+  setDroughtAalYear,
   floodSawahScheme,
   setFloodSawahScheme,
+  floodAalCV,
+  setFloodAalCV,
   Calendar,
-  Shield
+  Shield,
+  Activity
 }) {
   const { darkMode } = useTheme()
   const [openSettings, setOpenSettings] = useState(null) // 'basemap' | 'hazard' | 'aal' | 'sawah' | null
@@ -506,6 +511,66 @@ export default function LayerServices({
                       <option value="airport" className={darkMode ? 'bg-[#1A1D21]' : ''}>Airport</option>
                       <option value="hotel" className={darkMode ? 'bg-[#1A1D21]' : ''}>Hotel</option>
                     </select>
+
+                    {/* Climate Scenario Selector for Building AAL */}
+                    {selectedGroup === 'banjir' && (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2 p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                          <Shield size={12} className="text-blue-500 shrink-0" />
+                          <select
+                            value={floodAalCC}
+                            onChange={(e) => setFloodAalCC && setFloodAalCC(e.target.value)}
+                            className={`bg-transparent border-none p-0 text-[10px] font-bold outline-none cursor-pointer w-full ${darkMode ? 'text-blue-400' : 'text-blue-700'}`}
+                          >
+                            <option value="ncc" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Non Climate Change</option>
+                            <option value="cc" className={darkMode ? 'bg-gray-900' : 'bg-white'}>Climate Change</option>
+                          </select>
+                        </div>
+
+                        {/* CV Selector */}
+                        <div className="flex items-center gap-2 p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                          <Activity size={12} className="text-indigo-500 shrink-0" />
+                          <div className="flex items-center justify-between w-full">
+                            <span className={`text-[8px] font-black uppercase tracking-widest ${darkMode ? 'text-indigo-300/50' : 'text-indigo-600/50'}`}>CV:</span>
+                            <select
+                              value={floodAalCV}
+                              onChange={(e) => setFloodAalCV && setFloodAalCV(e.target.value)}
+                              className={`bg-transparent border-none p-0 text-[10px] font-black outline-none cursor-pointer text-right ${darkMode ? 'text-indigo-400' : 'text-indigo-700'}`}
+                            >
+                              {['0.15', '0.25', '0.35', '0.45', '0.55', '0.65', '0.75'].map(cv => (
+                                <option key={cv} value={cv} className={darkMode ? 'bg-gray-900' : 'bg-white'}>{cv}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Shared Skema Selector for Flood (Building & Sawah) */}
+                {infraLayers.aal && selectedGroup === 'banjir' && (
+                  <div className="mt-2 flex items-center gap-2 p-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                    <Database size={12} className="text-orange-500 shrink-0 ml-0.5" />
+                    <div className="flex items-center justify-between w-full px-1">
+                      <span className={`text-[8px] font-black uppercase tracking-widest ${darkMode ? 'text-orange-300/50' : 'text-orange-600/50'}`}>Skema:</span>
+                      <div className="flex gap-1">
+                        {['1', '2'].map(s => (
+                          <button
+                            key={s}
+                            onClick={() => setFloodSawahScheme && setFloodSawahScheme(s)}
+                            className={`px-3 py-0.5 rounded text-[9px] font-black transition-all ${
+                              floodSawahScheme === s 
+                                ? (darkMode ? 'bg-orange-500 text-white' : 'bg-orange-600 text-white shadow-sm') 
+                                : (darkMode ? 'text-orange-300/40 hover:text-orange-300' : 'text-orange-600/40 hover:text-orange-600')
+                            }`}
+                          >
+                            {s === '1' ? '4 return period' : '7 return period'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 

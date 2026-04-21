@@ -31,6 +31,7 @@ const kajianList = [
     color: 'from-teal-500/20 to-cyan-500/10',
     border: 'border-teal-500/20',
     tag: 'Population Impact',
+    href: '/others/populasi-terdampak',
   },
   {
     id: 4,

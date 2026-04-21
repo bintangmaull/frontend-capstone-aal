@@ -8,6 +8,8 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContai
 import { DROUGHT_CURVE } from '../src/lib/drought_curve';
 import DroughtAALChartPanel from './DroughtAALChartPanel';
 import FloodAALSawahChartPanel from './FloodAALSawahChartPanel';
+import FloodAALBuildingChartPanel from './FloodAALBuildingChartPanel';
+import GempaAALChartPanel from './GempaAALChartPanel';
 
 const formatUSD = (v) => {
   if (!v && v !== 0) return '-';
@@ -2382,18 +2384,21 @@ const ReactLegendOverlay = ({
   setDroughtAalYear,
   droughtAalCC,
   setDroughtAalCC,
+  floodAalCV,
+  setFloodAalCV,
+  floodAalYear,
+  setFloodAalYear,
   floodSawahScheme,
   setFloodSawahScheme,
 }) => {
   const [droughtAalData, setDroughtAalData] = useState([]);
   const [droughtAalLoading, setDroughtAalLoading] = useState(false);
-
   const hazardKey = rasterStats?.hazardKey;
   const hazardInfo = hazardKey ? HAZARD_INFO[hazardKey] : null;
   const hasHazard = !!hazardInfo;
   const isDrought = selectedGroup === 'kekeringan' || selectedGroup === 'drought_gpm' || selectedGroup === 'drought_mme';
   const hasAAL = (infraLayers.aal || isDrought) && selectedGroup;
-  const hasDirectLoss = (infraLayers.directLoss || infraLayers.modelHazard || selectedGroup === 'earthquake' || selectedGroup === 'tsunami') && selectedGroup;
+  const hasDirectLoss = (infraLayers.directLoss || infraLayers.modelHazard) && selectedGroup;
 
   useEffect(() => {
     if (isDrought && (hasAAL || hasDirectLoss)) {
@@ -2974,7 +2979,7 @@ const ReactLegendOverlay = ({
                   else if (selectedGroup === 'tsunami') hazPrefix = 'inundansi';
                   else if (isDrought) hazPrefix = 'drought';
 
-                  if (isDrought && droughtAalData.length > 0) {
+                  if (isDrought && droughtAalData && droughtAalData.length > 0) {
                     metric = activeAalExposure || 'sawah'; // Metric in data objects
                     vals = activeBoundaryData.features.map(f => {
                       const cityName = (f.properties.nama_kota || f.properties.id_kota || '').toUpperCase();
@@ -3087,21 +3092,39 @@ const ReactLegendOverlay = ({
               )}
 
               {hasAAL && !isDrought && (
-                selectedGroup === 'banjir' && floodView === 'sawah' ? (
-                  <FloodAALSawahChartPanel
-                    selectedCityFeature={selectedCityFeature}
-                    scheme={floodSawahScheme}
-                    setScheme={setFloodSawahScheme}
-                  />
+                selectedGroup === 'banjir' ? (
+                  floodView === 'sawah' ? (
+                    <FloodAALSawahChartPanel
+                      selectedCityFeature={selectedCityFeature}
+                      scheme={floodSawahScheme}
+                      setScheme={setFloodSawahScheme}
+                    />
+                  ) : (
+                    <FloodAALBuildingChartPanel
+                      selectedCityFeature={selectedCityFeature}
+                      scheme={floodSawahScheme}
+                      setScheme={setFloodSawahScheme}
+                      floodAalCV={floodAalCV}
+                      setFloodAalCV={setFloodAalCV}
+                    />
+                  )
                 ) : (
-                  <AALChartPanel
-                    boundaryData={boundaryDataAAL}
-                    selectedCityFeature={selectedCityFeature}
-                    rekapData={boundaryDataDL}
-                    selectedGroup={selectedGroup}
-                    onOpenDownload={onOpenDownload}
-                    onOpenTable={onOpenTable}
-                  />
+                  selectedGroup === 'earthquake' ? (
+                    <GempaAALChartPanel
+                      boundaryData={boundaryDataAAL}
+                      selectedCityFeature={selectedCityFeature}
+                      onOpenDownload={onOpenDownload}
+                    />
+                  ) : (
+                    <AALChartPanel
+                      boundaryData={boundaryDataAAL}
+                      selectedCityFeature={selectedCityFeature}
+                      rekapData={boundaryDataDL}
+                      selectedGroup={selectedGroup}
+                      onOpenDownload={onOpenDownload}
+                      onOpenTable={onOpenTable}
+                    />
+                  )
                 )
               )}
             </div>

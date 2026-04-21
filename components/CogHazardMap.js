@@ -302,9 +302,11 @@ export default function CogHazardMap() {
   const [floodSawahYear, setFloodSawahYear] = useState('loss_2022')
   const [floodAalYear, setFloodAalYear] = useState('2022')
   const [floodAalCC, setFloodAalCC] = useState('ncc')
+  const [floodAalCV, setFloodAalCV] = useState('0.15')
   const [boundaryDataAAL, setBoundaryDataAAL] = useState(null)
   const [boundaryDataDL, setBoundaryDataDL] = useState(null)
-  const [droughtAalData, setDroughtAalData] = useState(null)
+  const [droughtAalMapData, setDroughtAalMapData] = useState(null)
+  const [droughtAalLoading, setDroughtAalLoading] = useState(false)
   const [droughtAalYear, setDroughtAalYear] = useState('2022')
   const [droughtAalCC, setDroughtAalCC] = useState('ncc')
   const [activeAalExposure, setActiveAalExposure] = useState('total')
@@ -432,6 +434,7 @@ export default function CogHazardMap() {
 
     const props = feature.properties;
     const cityId = (props.id_kota || props.nama_kota || '').toUpperCase();
+    if (cityId.includes('BADUNG')) console.log('ENRICHMENT DEBUG START (BADUNG):', props);
     
     // Check if we should trust the live point counts for this city
     const isCityFresh = refreshedCities.has(cityId);
@@ -603,6 +606,7 @@ export default function CogHazardMap() {
     const processedTotals = { ...totals };
     processedTotals.dl_exposure = JSON.stringify(totals.dl_exposure);
 
+    if (cityId.includes('BADUNG')) console.log('ENRICHMENT DEBUG END (BADUNG):', { ...feature.properties, ...processedTotals });
     return {
       ...feature,
       properties: { ...feature.properties, ...processedTotals }
@@ -1023,9 +1027,9 @@ export default function CogHazardMap() {
   // ── Fetch Boundary Data (Background on Mount) ────────────────────────────────
   useEffect(() => {
     const fetchBoundaries = async () => {
-      const urlAal = `${BACKEND_URL}/api/aal-kota${dataVersion > 0 ? `?_v=${dataVersion}` : ''}`
+      const urlAal = `${BACKEND_URL}/api/aal-kota?cv=${floodAalCV}&scheme=${floodSawahScheme}${dataVersion > 0 ? `&_v=${dataVersion}` : ''}`
       const urlDl = `${BACKEND_URL}/api/rekap-aset-kota${dataVersion > 0 ? `?_v=${dataVersion}` : ''}`
-      const cacheName = 'boundary-cache-v4'
+      const cacheName = 'boundary-cache-v5'
 
       try {
         if (typeof caches === 'undefined') {
@@ -1116,7 +1120,7 @@ export default function CogHazardMap() {
       }
     }
     fetchBoundaries()
-  }, [dataVersion]) // Only re-fetch manually on dataVersion update to prevent loop
+  }, [dataVersion, floodAalCV, floodAalCC, floodSawahScheme]) // Only re-fetch manually on dataVersion update or when params change
 
   // ── Fetch Drought AAL Data (Map Choropleth) ──────────────────────────────────
   useEffect(() => {
@@ -1135,20 +1139,20 @@ export default function CogHazardMap() {
           const cachedRes = await cache.match(url)
           if (cachedRes) {
             data = await cachedRes.json()
-            setDroughtAalData(data)
+            setDroughtAalMapData(data)
           }
           
           const resp = await fetch(url)
           if (resp.ok) {
             await cache.put(url, resp.clone())
             data = await resp.json()
-            setDroughtAalData(data)
+            setDroughtAalMapData(data)
           }
         } else {
           const resp = await fetch(url)
           if (resp.ok) {
             data = await resp.json()
-            setDroughtAalData(data)
+            setDroughtAalMapData(data)
           }
         }
       } catch (err) {
@@ -1330,7 +1334,7 @@ export default function CogHazardMap() {
     // Choose which boundary data to use based on toggles
     let activeBoundaryData = null;
     if (infraLayers.aal) {
-      activeBoundaryData = (selectedGroup === 'kekeringan') ? droughtAalData : enrichedBoundaryDataAAL;
+      activeBoundaryData = (selectedGroup === 'kekeringan') ? droughtAalMapData : enrichedBoundaryDataAAL;
     }
     else if (infraLayers.directLoss) activeBoundaryData = enrichedBoundaryDataDL;
     else if (infraLayers.boundaries) activeBoundaryData = enrichedBoundaryDataAAL || enrichedBoundaryDataDL; // Fallback to either if just boundary is toggled
@@ -1380,7 +1384,7 @@ export default function CogHazardMap() {
           activeMetric = null;
         }
       } else if (infraLayers.aal) {
-        if (selectedGroup === 'banjir') hazPrefix = (selectedRpId && selectedRpId.includes('comp')) ? 'rc' : 'r';
+        if (selectedGroup === 'banjir') hazPrefix = (floodAalCC === 'cc') ? 'rc' : 'r';
         else if (selectedGroup === 'earthquake') hazPrefix = 'pga';
         else if (selectedGroup === 'tsunami') hazPrefix = 'inundansi';
         else if (selectedGroup === 'kekeringan') hazPrefix = 'drought';
@@ -1410,7 +1414,7 @@ export default function CogHazardMap() {
             const rows = data[ccKey]?.[rpKey] || [];
             vals = rows.map(r => r[lossYear] || 0).filter(v => typeof v === 'number' && !isNaN(v));
           }
-        } else if (activeMetric) {
+        } else if (activeMetric && activeBoundaryData?.features) {
           vals = activeBoundaryData.features.map(f => {
             if (isEarthquake) {
               let dlExp = f.properties.dl_exposure || {};
@@ -1428,6 +1432,9 @@ export default function CogHazardMap() {
         if (vals.length > 0) {
           const nClasses = vals.length > 30 ? 6 : 5;
           grades = jenks(vals, nClasses).sort((a, b) => a - b);
+          console.log('CHOROPLETH DEBUG:', { activeMetric, nVals: vals.length, maxVal: Math.max(...vals), grades });
+        } else {
+          console.log('CHOROPLETH DEBUG: No values found for', activeMetric);
         }
       }
 
@@ -1565,7 +1572,7 @@ export default function CogHazardMap() {
         }
       }).addTo(mapRef.current);
     }
-  }, [infraLayers.boundaries, infraLayers.aal, infraLayers.directLoss, infraLayers.modelHazard, selectedGroup, selectedRpId, boundaryDataAAL, boundaryDataDL, droughtAalData, droughtAalYear, droughtAalCC, opacityAAL, activeAalExposure, floodView, floodSawahData, droughtSawahData, floodSawahYear, droughtLossYear])
+  }, [infraLayers.boundaries, infraLayers.aal, infraLayers.directLoss, infraLayers.modelHazard, selectedGroup, selectedRpId, boundaryDataAAL, boundaryDataDL, droughtAalMapData, droughtAalYear, droughtAalCC, opacityAAL, activeAalExposure, floodView, floodSawahData, droughtSawahData, floodSawahYear, droughtLossYear, floodAalCV, floodAalCC])
 
 
 
@@ -2281,8 +2288,11 @@ export default function CogHazardMap() {
           setDroughtAalCC={setDroughtAalCC}
           floodSawahScheme={floodSawahScheme}
           setFloodSawahScheme={setFloodSawahScheme}
+          floodAalCV={floodAalCV}
+          setFloodAalCV={setFloodAalCV}
           Calendar={Calendar}
           Shield={Shield}
+          Activity={Activity}
         />
 
         {/* ── Map area ── */}
@@ -2414,6 +2424,8 @@ export default function CogHazardMap() {
             setFloodAalYear={setFloodAalYear}
             floodAalCC={floodAalCC}
             setFloodAalCC={setFloodAalCC}
+            floodAalCV={floodAalCV}
+            setFloodAalCV={setFloodAalCV}
             floodSawahData={floodSawahData}
             droughtAalYear={droughtAalYear}
             setDroughtAalYear={setDroughtAalYear}

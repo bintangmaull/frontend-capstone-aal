@@ -79,6 +79,11 @@ function Figure({ src, caption, darkMode }) {
 function DataTable({ table, darkMode }) {
   return (
     <figure className="my-8 flex flex-col items-center gap-3">
+      <figcaption className={`text-xs text-center italic max-w-2xl ${
+        darkMode ? 'text-slate-400' : 'text-slate-500'
+      }`}>
+        {table.caption}
+      </figcaption>
       <div className="w-full overflow-x-auto rounded-2xl border" style={{
         borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
       }}>
@@ -113,11 +118,6 @@ function DataTable({ table, darkMode }) {
           </tbody>
         </table>
       </div>
-      <figcaption className={`text-xs text-center italic max-w-2xl ${
-        darkMode ? 'text-slate-400' : 'text-slate-500'
-      }`}>
-        {table.caption}
-      </figcaption>
     </figure>
   );
 }

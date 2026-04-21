@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { useTheme } from '../context/ThemeContext';
-import { BarChart2, TrendingUp, Download, X, Activity, Maximize2 } from 'lucide-react';
+import { BarChart2, TrendingUp, Download, X, Maximize2 } from 'lucide-react';
 
 const formatRupiah = (v) => {
     if (!v && v !== 0) return '-';
@@ -58,8 +58,7 @@ export default function FloodAALSawahChartPanel({ selectedCityFeature, scheme, s
         { key: 'pml_100', label: 'PML 100', description: 'Probable Maximum Loss 100TH' },
         ...(scheme !== '2' ? [
             { key: 'tvar_100', label: 'TVaR 100', description: 'Tail Value at Risk 100TH' }
-        ] : []),
-        { key: 'pml_curve', label: 'Curve', description: 'Risk Curve' }
+        ] : [])
     ];
 
     useEffect(() => {
@@ -67,7 +66,12 @@ export default function FloodAALSawahChartPanel({ selectedCityFeature, scheme, s
         fetch(`${backendUrl}/api/flood-sawah-aal?scheme=${scheme || '1'}`)
             .then(res => res.json())
             .then(res => {
-                setData(Array.isArray(res.data) ? res.data : []);
+                const raw = Array.isArray(res.data) ? res.data : [];
+                const normalized = raw.map(d => ({
+                    ...d,
+                    climate_change: (d.climate_change === 'cc' || (d.climate_change && d.climate_change.toLowerCase().includes('change'))) ? 'cc' : 'ncc'
+                }));
+                setData(normalized);
             })
             .catch(err => console.error('Error fetching flood AAL:', err))
             .finally(() => setLoading(false));
@@ -160,10 +164,13 @@ export default function FloodAALSawahChartPanel({ selectedCityFeature, scheme, s
     const cityCompData = data
         .filter(d => Number(d.year) === selectedYearComp)
         .reduce((acc, d) => {
-            if (!acc[d.kota]) acc[d.kota] = { name: d.kota, total: 0 };
+            if (!acc[d.kota]) acc[d.kota] = { name: d.kota, total: 0, ncc: 0, cc: 0 };
             const scen = d.climate_change === 'r' ? 'ncc' : d.climate_change;
-            acc[d.kota][scen] = d[activeMetric] || 0;
-            acc[d.kota].total += d[activeMetric] || 0;
+            const val = Number(d[activeMetric]) || 0;
+            if (scen === 'ncc' || scen === 'cc') {
+                acc[d.kota][scen] += val;
+            }
+            acc[d.kota].total += val;
             return acc;
         }, {});
     
@@ -200,42 +207,6 @@ export default function FloodAALSawahChartPanel({ selectedCityFeature, scheme, s
         <div className="flex flex-col gap-4">
             {/* Header */}
             <div className="px-4 pt-3">
-                <div className="flex items-center justify-between mb-3 leading-tight">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                            <Activity size={14} className="text-blue-500" />
-                        </div>
-                        <div className="flex flex-col">
-                            <h4 className={`text-[10px] font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>
-                                Analisis Risiko AAL Sawah (Banjir)
-                            </h4>
-                            <div className="flex items-center gap-2 mt-0.5">
-                                <p className="text-[8px] text-slate-500 font-medium uppercase tracking-wider">
-                                    {cityName ? `Kota: ${cityName}` : 'Seluruh Bali'}
-                                </p>
-                                <div className={`w-[1px] h-2 ${darkMode ? 'bg-slate-700' : 'bg-slate-200'}`}></div>
-                                <div className="flex items-center gap-1.5">
-                                    <span className={`text-[7px] font-bold uppercase tracking-widest ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Skema:</span>
-                                    <div className="flex p-0.5 rounded bg-slate-100 dark:bg-slate-800 border dark:border-slate-700">
-                                        {['1', '2'].map(s => (
-                                            <button
-                                                key={s}
-                                                onClick={() => setScheme && setScheme(s)}
-                                                className={`px-1.5 py-0.5 rounded text-[7px] font-black transition-all duration-200 ${
-                                                    scheme === s 
-                                                        ? 'bg-white dark:bg-slate-600 text-blue-500 shadow-sm' 
-                                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                                }`}
-                                            >
-                                                S{s}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Metric Selector */}
                 <div className="flex flex-wrap gap-1">
@@ -258,6 +229,14 @@ export default function FloodAALSawahChartPanel({ selectedCityFeature, scheme, s
             {/* Main Chart */}
             <div className="px-4 pb-2">
                 <div className={`p-4 rounded-xl border ${darkMode ? 'bg-slate-900 border-slate-800 shadow-inner' : 'bg-white border-slate-100 shadow-sm'}`}>
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <TrendingUp size={14} className="text-emerald-500" />
+                            <h5 className={`text-[9px] font-black uppercase tracking-[0.15em] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                                Distribusi {activeMetric.toUpperCase()} (Tahun 2022-2028)
+                            </h5>
+                        </div>
+                    </div>
                     <div className="h-44 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             {activeMetric === 'pml_curve' ? (
@@ -289,25 +268,27 @@ export default function FloodAALSawahChartPanel({ selectedCityFeature, scheme, s
             {/* City Comparison */}
             {!cityName && cityComparisonFinal.length > 0 && (
                 <div className="px-4 pb-4">
-                    <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-1.5">
-                            <BarChart2 size={12} className="text-blue-500" />
-                            <h4 className={`text-[8px] font-bold uppercase tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <div className="flex flex-col gap-3 mb-4">
+                        <div className="flex items-center gap-2">
+                            <BarChart2 size={14} className="text-emerald-500" />
+                            <h4 className={`text-[9px] font-black uppercase tracking-[0.15em] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                                 Perbandingan {activeMetric.toUpperCase()} Antar Kota
                             </h4>
                         </div>
-                        <div className="flex p-0.5 rounded bg-slate-100 dark:bg-slate-800 border dark:border-slate-700">
-                            {availableYears.map(y => (
-                                <button
-                                    key={y}
-                                    onClick={() => setSelectedYearComp(y)}
-                                    className={`px-1.5 py-0.5 rounded text-[7px] font-bold transition-all ${
-                                        selectedYearComp === y ? 'bg-white dark:bg-slate-600 text-blue-500 shadow-sm' : 'text-slate-500'
-                                    }`}
-                                >
-                                    {y}
-                                </button>
-                            ))}
+                        <div className="flex">
+                            <div className="flex p-0.5 rounded bg-slate-100 dark:bg-slate-800 border dark:border-slate-700">
+                                {availableYears.map(y => (
+                                    <button
+                                        key={y}
+                                        onClick={() => setSelectedYearComp(y)}
+                                        className={`px-3 py-1 rounded-md text-[9px] font-black transition-all ${
+                                            selectedYearComp === y ? 'bg-white dark:bg-slate-600 text-blue-500 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                    >
+                                        {y}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                     <div className={`p-3 rounded-xl border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`}>

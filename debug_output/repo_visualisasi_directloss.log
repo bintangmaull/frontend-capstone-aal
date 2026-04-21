@@ -1,0 +1,184 @@
+2026-04-20 20:58:08,403 DEBUG fetch_aal_kota_geojson SQL:
+
+        WITH flood_agg AS (
+            SELECT 
+                TRIM(LOWER(id_kota)) as id_kota_clean,
+                SUM(CASE WHEN lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_total,
+                SUM(CASE WHEN lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_total,
+                SUM(CASE WHEN lower(exposure) = 'hotel' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_hotel,
+                SUM(CASE WHEN lower(exposure) = 'hotel' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_hotel,
+                SUM(CASE WHEN lower(exposure) = 'airport' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_airport,
+                SUM(CASE WHEN lower(exposure) = 'airport' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_airport,
+                SUM(CASE WHEN (lower(exposure) = 'fd' OR lower(exposure) LIKE '%educational%') AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_fd,
+                SUM(CASE WHEN (lower(exposure) = 'fd' OR lower(exposure) LIKE '%educational%') AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_fd,
+                SUM(CASE WHEN (lower(exposure) = 'fs' OR lower(exposure) LIKE '%healthcare%') AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_fs,
+                SUM(CASE WHEN (lower(exposure) = 'fs' OR lower(exposure) LIKE '%healthcare%') AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_fs,
+                SUM(CASE WHEN lower(exposure) = 'electricity' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_electricity,
+                SUM(CASE WHEN lower(exposure) = 'electricity' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_electricity
+            FROM aal_flood_building
+            WHERE cv = CAST(:cv AS NUMERIC)
+            GROUP BY TRIM(LOWER(id_kota))
+        ),
+        drought_agg AS (
+            SELECT 
+                TRIM(LOWER(id_kota)) as id_kota_clean,
+                SUM(aal) as aal_drought
+            FROM aal_drought_sawah
+            WHERE year = 2022 AND climate_change = 'ncc'
+            GROUP BY TRIM(LOWER(id_kota))
+        )
+        SELECT json_build_object(
+          'type',     'FeatureCollection',
+          'features', COALESCE(json_agg(f), '[]'::json)
+        ) AS geojson
+        FROM (
+          SELECT json_build_object(
+            'type',     'Feature',
+            'geometry', ST_AsGeoJSON(ST_SimplifyPreserveTopology(k.geom, 0.01))::json,
+            'properties', to_jsonb(hak) || 
+                jsonb_build_object(
+                    'aal_drought_total', COALESCE(da.aal_drought, 0),
+                    -- Override flood values with aggregated building data
+                    'aal_r_total', COALESCE(fa.b_aal_r_total, hak.aal_r_total),
+                    'aal_rc_total', COALESCE(fa.b_aal_rc_total, hak.aal_rc_total),
+                    'aal_r_hotel', COALESCE(fa.b_aal_r_hotel, hak.aal_r_hotel),
+                    'aal_rc_hotel', COALESCE(fa.b_aal_rc_hotel, hak.aal_rc_hotel),
+                    'aal_r_airport', COALESCE(fa.b_aal_r_airport, hak.aal_r_airport),
+                    'aal_rc_airport', COALESCE(fa.b_aal_rc_airport, hak.aal_rc_airport),
+                    'aal_r_fs', COALESCE(fa.b_aal_r_fs, hak.aal_r_fs),
+                    'aal_rc_fs', COALESCE(fa.b_aal_rc_fs, hak.aal_rc_fs),
+                    'aal_r_fd', COALESCE(fa.b_aal_r_fd, hak.aal_r_fd),
+                    'aal_rc_fd', COALESCE(fa.b_aal_rc_fd, hak.aal_rc_fd),
+                    'aal_r_electricity', COALESCE(fa.b_aal_r_electricity, hak.aal_r_electricity),
+                    'aal_rc_electricity', COALESCE(fa.b_aal_rc_electricity, hak.aal_rc_electricity)
+                )
+          ) AS f
+          FROM hasil_aal_kota hak
+          JOIN kota k ON lower(TRIM(k.kota)) = lower(TRIM(hak.id_kota))
+          LEFT JOIN drought_agg da ON da.id_kota_clean = lower(TRIM(hak.id_kota))
+          LEFT JOIN flood_agg fa ON fa.id_kota_clean = lower(TRIM(hak.id_kota))
+        ) sub;
+        
+2026-04-20 20:59:06,714 DEBUG fetch_aal_kota_geojson SQL:
+
+        WITH flood_agg AS (
+            SELECT 
+                TRIM(LOWER(id_kota)) as id_kota_clean,
+                SUM(CASE WHEN lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_total,
+                SUM(CASE WHEN lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_total,
+                SUM(CASE WHEN lower(exposure) = 'hotel' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_hotel,
+                SUM(CASE WHEN lower(exposure) = 'hotel' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_hotel,
+                SUM(CASE WHEN lower(exposure) = 'airport' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_airport,
+                SUM(CASE WHEN lower(exposure) = 'airport' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_airport,
+                SUM(CASE WHEN (lower(exposure) = 'fd' OR lower(exposure) LIKE '%educational%') AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_fd,
+                SUM(CASE WHEN (lower(exposure) = 'fd' OR lower(exposure) LIKE '%educational%') AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_fd,
+                SUM(CASE WHEN (lower(exposure) = 'fs' OR lower(exposure) LIKE '%healthcare%') AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_fs,
+                SUM(CASE WHEN (lower(exposure) = 'fs' OR lower(exposure) LIKE '%healthcare%') AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_fs,
+                SUM(CASE WHEN lower(exposure) = 'electricity' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_electricity,
+                SUM(CASE WHEN lower(exposure) = 'electricity' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_electricity
+            FROM aal_flood_building
+            WHERE cv = CAST(:cv AS NUMERIC)
+            GROUP BY TRIM(LOWER(id_kota))
+        ),
+        drought_agg AS (
+            SELECT 
+                TRIM(LOWER(id_kota)) as id_kota_clean,
+                SUM(aal) as aal_drought
+            FROM aal_drought_sawah
+            WHERE year = 2022 AND climate_change = 'ncc'
+            GROUP BY TRIM(LOWER(id_kota))
+        )
+        SELECT json_build_object(
+          'type',     'FeatureCollection',
+          'features', COALESCE(json_agg(f), '[]'::json)
+        ) AS geojson
+        FROM (
+          SELECT json_build_object(
+            'type',     'Feature',
+            'geometry', ST_AsGeoJSON(ST_SimplifyPreserveTopology(k.geom, 0.01))::json,
+            'properties', to_jsonb(hak) || 
+                jsonb_build_object(
+                    'aal_drought_total', COALESCE(da.aal_drought, 0),
+                    -- Override flood values with aggregated building data
+                    'aal_r_total', COALESCE(fa.b_aal_r_total, hak.aal_r_total),
+                    'aal_rc_total', COALESCE(fa.b_aal_rc_total, hak.aal_rc_total),
+                    'aal_r_hotel', COALESCE(fa.b_aal_r_hotel, hak.aal_r_hotel),
+                    'aal_rc_hotel', COALESCE(fa.b_aal_rc_hotel, hak.aal_rc_hotel),
+                    'aal_r_airport', COALESCE(fa.b_aal_r_airport, hak.aal_r_airport),
+                    'aal_rc_airport', COALESCE(fa.b_aal_rc_airport, hak.aal_rc_airport),
+                    'aal_r_fs', COALESCE(fa.b_aal_r_fs, hak.aal_r_fs),
+                    'aal_rc_fs', COALESCE(fa.b_aal_rc_fs, hak.aal_rc_fs),
+                    'aal_r_fd', COALESCE(fa.b_aal_r_fd, hak.aal_r_fd),
+                    'aal_rc_fd', COALESCE(fa.b_aal_rc_fd, hak.aal_rc_fd),
+                    'aal_r_electricity', COALESCE(fa.b_aal_r_electricity, hak.aal_r_electricity),
+                    'aal_rc_electricity', COALESCE(fa.b_aal_rc_electricity, hak.aal_rc_electricity)
+                )
+          ) AS f
+          FROM hasil_aal_kota hak
+          JOIN kota k ON lower(TRIM(k.kota)) = lower(TRIM(hak.id_kota))
+          LEFT JOIN drought_agg da ON da.id_kota_clean = lower(TRIM(hak.id_kota))
+          LEFT JOIN flood_agg fa ON fa.id_kota_clean = lower(TRIM(hak.id_kota))
+        ) sub;
+        
+2026-04-20 21:06:04,264 DEBUG fetch_aal_kota_geojson SQL:
+
+        WITH flood_agg AS (
+            SELECT 
+                TRIM(LOWER(id_kota)) as id_kota_clean,
+                SUM(CASE WHEN lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_total,
+                SUM(CASE WHEN lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_total,
+                SUM(CASE WHEN lower(exposure) = 'hotel' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_hotel,
+                SUM(CASE WHEN lower(exposure) = 'hotel' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_hotel,
+                SUM(CASE WHEN lower(exposure) = 'airport' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_airport,
+                SUM(CASE WHEN lower(exposure) = 'airport' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_airport,
+                SUM(CASE WHEN (lower(exposure) = 'fd' OR lower(exposure) LIKE '%educational%') AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_fd,
+                SUM(CASE WHEN (lower(exposure) = 'fd' OR lower(exposure) LIKE '%educational%') AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_fd,
+                SUM(CASE WHEN (lower(exposure) = 'fs' OR lower(exposure) LIKE '%healthcare%') AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_fs,
+                SUM(CASE WHEN (lower(exposure) = 'fs' OR lower(exposure) LIKE '%healthcare%') AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_fs,
+                SUM(CASE WHEN lower(exposure) = 'electricity' AND lower(climate_change) NOT LIKE '%change%' THEN aal ELSE 0 END) as b_aal_r_electricity,
+                SUM(CASE WHEN lower(exposure) = 'electricity' AND lower(climate_change) LIKE '%change%' THEN aal ELSE 0 END) as b_aal_rc_electricity
+            FROM aal_flood_building
+            WHERE cv = CAST(:cv AS NUMERIC)
+            GROUP BY TRIM(LOWER(id_kota))
+        ),
+        drought_agg AS (
+            SELECT 
+                TRIM(LOWER(id_kota)) as id_kota_clean,
+                SUM(aal) as aal_drought
+            FROM aal_drought_sawah
+            WHERE year = 2022 AND climate_change = 'ncc'
+            GROUP BY TRIM(LOWER(id_kota))
+        )
+        SELECT json_build_object(
+          'type',     'FeatureCollection',
+          'features', COALESCE(json_agg(f), '[]'::json)
+        ) AS geojson
+        FROM (
+          SELECT json_build_object(
+            'type',     'Feature',
+            'geometry', ST_AsGeoJSON(ST_SimplifyPreserveTopology(k.geom, 0.01))::json,
+            'properties', to_jsonb(hak) || jsonb_build_object(
+                'id_kota', k.kota,
+                'nama_kota', k.kota,
+                'aal_drought_total', COALESCE(da.aal_drought, 0),
+                -- Use ONLY building data for flood (overwrites hak if keys exist)
+                'aal_r_total', COALESCE(fa.b_aal_r_total, 0),
+                'aal_rc_total', COALESCE(fa.b_aal_rc_total, 0),
+                'aal_r_hotel', COALESCE(fa.b_aal_r_hotel, 0),
+                'aal_rc_hotel', COALESCE(fa.b_aal_rc_hotel, 0),
+                'aal_r_airport', COALESCE(fa.b_aal_r_airport, 0),
+                'aal_rc_airport', COALESCE(fa.b_aal_rc_airport, 0),
+                'aal_r_fs', COALESCE(fa.b_aal_r_fs, 0),
+                'aal_rc_fs', COALESCE(fa.b_aal_rc_fs, 0),
+                'aal_r_fd', COALESCE(fa.b_aal_r_fd, 0),
+                'aal_rc_fd', COALESCE(fa.b_aal_rc_fd, 0),
+                'aal_r_electricity', COALESCE(fa.b_aal_r_electricity, 0),
+                'aal_rc_electricity', COALESCE(fa.b_aal_rc_electricity, 0)
+            )
+          ) AS f
+          FROM kota k
+          LEFT JOIN hasil_aal_kota hak ON lower(TRIM(hak.id_kota)) = lower(TRIM(k.kota))
+          LEFT JOIN drought_agg da ON da.id_kota_clean = lower(TRIM(k.kota))
+          LEFT JOIN flood_agg fa ON fa.id_kota_clean = lower(TRIM(k.kota))
+        ) sub;
+        
