@@ -1,99 +1,49 @@
 // pages/others/biaya-evakuasi.js
+import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header';
 import { useTheme } from '../../context/ThemeContext';
 import { useRouter } from 'next/router';
 import { ArrowLeft } from 'lucide-react';
 
-// ── inline data ─────────────────────────────────────────────────────────────
-const table1 = {
-  caption: 'Tabel 1. Data yang digunakan untuk menentukan biaya evakuasi',
-  headers: ['No.', 'Data', 'Penggunaan'],
-  rows: [
-    ['1', 'Peraturan BNPB No. 7/2008 (Tata Cara Pemberian Bantuan Pemenuhan Kebutuhan Dasar)', 'Menyediakan standar untuk kebutuhan harian minimum per orang selama evakuasi.'],
-    ['2', 'Harga pasar kebutuhan pokok: Konsumsi makanan (beras & makan siap saji), Kebutuhan sanitasi (sabun), Air minum, dan Air bersih.', 'Mengonversi kuantitas kebutuhan dasar menjadi biaya evakuasi.'],
-    ['3', 'Lokasi penampungan dan jumlah pengungsi (orang)', 'Merepresentasikan populasi yang terpapar dan menyesuaikan biaya evakuasi per unit dengan biaya evakuasi di tingkat tempat penampungan.'],
-  ],
-};
+const APP_DIR = '/Kajian/B04 PENENTUAN BIAYA EVAKUASI-20260419T180404Z-3-001/B04 PENENTUAN BIAYA EVAKUASI';
 
-const table2 = {
-  caption: 'Tabel 2. Jumlah pengungsi di pos pengungsian selama peristiwa banjir September 2025 di Bali',
-  headers: ['No', 'Kota/Kabupaten', 'Lokasi Penampungan', 'Jumlah Pengungsi (orang)', 'Waktu Mengungsi (hari)'],
-  rows: [
-    ['1', 'Denpasar', 'SD 25 Pemecutan', '16', '2'],
-    ['2', 'Denpasar', 'Banjar Dadakan Peguyangan', '139', '3'],
-    ['3', 'Denpasar', 'Banjar Sedana Merta Ubung', '68', '3'],
-    ['4', 'Denpasar', 'Banjar Kesambi Kesiman', '129', '3'],
-    ['5', 'Denpasar', 'Banjar Sumuh', '103', '3'],
-    ['6', 'Denpasar', 'SD Negeri 12 Pemecutan', '340', '5'],
-    ['7', 'Denpasar', 'Posko Cokroaminoto', '540', '6'],
-    ['8', 'Denpasar', 'Dauh Puri Kaja Village Perbekel Office', '0', '0'],
-    ['9', 'Denpasar', 'Kantor Perbekel Desa Pemecutan Kaja', '213', '4'],
-    ['10', 'Denpasar', 'Kantor Desa Tegal Kertha', '22', '1'],
-    ['11', 'Denpasar', 'Bale Banjar Tohpati', '139', '4'],
-    ['12', 'Jembrana', 'Balai Adat Banjar samblong', '200', '1'],
-    ['13', 'Jembrana', 'Kantor Perbekel Desa Yeh Kuning', '25', '1'],
-    ['14', 'Jembrana', 'Kantor Kelurahan Loloan Barat', '75', '1'],
-    ['15', 'Jembrana', 'Musholla Miftahussolah', '11', '1'],
-    ['16', 'Jembrana', 'Polres Jembrana', '16', '1'],
-    ['17', 'Jembrana', 'Kantor Kelurahan Banjar Tengah', '100', '2'],
-    ['18', 'Jembrana', 'Kantor Lurah Lelateng', '400', '2'],
-  ],
-};
+// ── utility: parse CSV ─────────────────────────────────────────────────────
+function parseCSV(csvText, hasComplexHeaders = false) {
+  const parseLine = (line) => {
+    const result = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') inQuotes = !inQuotes;
+      else if (char === ',' && !inQuotes) {
+        result.push(cur.trim());
+        cur = '';
+      } else {
+        cur += char;
+      }
+    }
+    result.push(cur.trim());
+    return result;
+  };
 
-const table3 = {
-  caption: 'Tabel 3. Biaya evakuasi harian per orang (skenario biaya rendah)',
-  headers: ['No', 'Kebutuhan', 'Biaya (IDR)', 'Biaya (USD)'],
-  rows: [
-    ['1', 'Konsumsi makanan (400 g beras + 2 kali makan)', '34,737.60', '2.08'],
-    ['2', 'Kebutuhan sanitasi (200 g sabun cuci dan 250 g sabun mandi)', '22,675.00', '1.36'],
-    ['3', 'Air minum (2.5 Liter)', '14,200.00', '0.85'],
-    ['4', 'Air bersih (15 Liter)', '160.65', '0.01'],
-    ['', 'Total', '71,773.25', '4.31'],
-  ],
-};
+  // Pre-process: replace newlines inside quotes with a space
+  let sanitizedText = csvText.replace(/"([^"]*)"/g, (match, p1) => {
+    return '"' + p1.replace(/\n/g, ' ') + '"';
+  });
 
-const table4 = {
-  caption: 'Tabel 4. Biaya evakuasi harian per orang (skenario biaya berbasis kebijakan)',
-  headers: ['No', 'Kebutuhan', 'Biaya (IDR)', 'Biaya (USD)'],
-  rows: [
-    ['1', 'Jaminan Hidup (Jadup)', '10,000.00', '0.60'],
-    ['2', 'Bantuan Lauk Pendamping (Lauk Pauk)', '11,250.00', '0.68'],
-    ['3', 'Beras (83.33 g)', '990.60', '0.06'],
-    ['4', 'Dana Tunggu Perumahan Sementara (DTH)', '20,000.00', '1.20'],
-    ['', 'Total', '42,240.00', '2.53'],
-  ],
-};
+  const lines = sanitizedText.split('\n').filter(l => l.trim() !== '');
+  if (lines.length < 2) return null;
 
-const table5 = {
-  caption: 'Tabel 5. Total biaya evakuasi untuk setiap pos pengungsian',
-  headers: ['No.', 'Lokasi Penampungan', 'Jumlah Pengungsi', 'Biaya Rendah (USD)', 'Biaya Kebijakan (USD)'],
-  rows: [
-    ['1', 'SD 25 Pemecutan', '16', '68.90', '40.48'],
-    ['2', 'Banjar Dadakan Peguyangan', '139', '598.53', '351.67'],
-    ['3', 'Banjar Sedana Merta Ubung', '68', '292.81', '172.04'],
-    ['4', 'Banjar Kesambi Kesiman', '129', '555.47', '326.37'],
-    ['5', 'Banjar Sumuh', '103', '443.52', '260.59'],
-    ['6', 'SD Negeri 12 Pemecutan', '340', '1,464.04', '860.20'],
-    ['7', 'Posko Cokroaminoto', '540', '2,325.24', '1,366.20'],
-    ['8', 'Dauh Puri Kaja Village Perbekel Office', '0', '0.00', '0.00'],
-    ['9', 'Kantor Perbekel Desa Pemecutan Kaja', '213', '917.18', '538.89'],
-    ['10', 'Kantor Desa Tegal Kertha', '22', '94.73', '55.66'],
-    ['11', 'Bale Banjar Tohpati', '139', '598.53', '351.67'],
-    ['12', 'Balai Adat Banjar samblong', '200', '861.20', '506.00'],
-    ['13', 'Kantor Perbekel Desa Yeh Kuning', '25', '107.65', '63.25'],
-    ['14', 'Kantor Kelurahan Loloan Barat', '75', '322.95', '189.75'],
-    ['15', 'Musholla Miftahussolah', '11', '47.37', '27.83'],
-    ['16', 'Polres Jembrana', '16', '68.90', '40.48'],
-    ['17', 'Kantor Kelurahan Banjar Tengah', '100', '430.60', '253.00'],
-    ['18', 'Kantor Lurah Lelateng', '400', '1,722.40', '1,012.00'],
-    ['', 'Total', '2,536', '10,920.02', '6,416.08'],
-  ],
-};
+  const headers = parseLine(lines[0]).map(s => s.replace(/^"(.*)"$/, '$1').trim());
+  const rows = lines.slice(1).map(line => parseLine(line).map(cell => cell.replace(/^"(.*)"$/, '$1').trim()));
+  return { headers, rows };
+}
 
 // ── reusable sub-components ────────────────────────────────────────────────
 function SectionHeading({ children, darkMode }) {
   return (
-    <h2 className={`text-lg md:text-xl font-black uppercase tracking-widest mb-4 pb-2 border-b ${
+    <h2 className={`text-lg md:text-xl font-black uppercase tracking-widest mb-4 mt-12 pb-2 border-b ${
       darkMode ? 'text-white border-white/10' : 'text-slate-900 border-slate-200'
     }`}>
       {children}
@@ -111,23 +61,27 @@ function Paragraph({ children, darkMode }) {
   );
 }
 
-function DataTable({ table, darkMode }) {
+function DataTable({ parsedData, darkMode, caption }) {
+  if (!parsedData) return <div className="p-10 text-center animate-pulse">Loading data...</div>;
+
+  const { headers, rows } = parsedData;
+
   return (
-    <figure className="my-8 flex flex-col items-center gap-3">
-      <figcaption className={`text-xs text-center italic max-w-2xl ${
+    <figure className="my-10 flex flex-col items-center gap-3">
+      <figcaption className={`text-xs text-center italic max-w-2xl px-4 ${
         darkMode ? 'text-slate-400' : 'text-slate-500'
       }`}>
-        {table.caption}
+        {caption}
       </figcaption>
-      <div className="w-full overflow-x-auto rounded-2xl border" style={{
+      <div className="w-full overflow-x-auto rounded-2xl border bg-white/5" style={{
         borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
       }}>
-        <table className="min-w-full text-xs md:text-sm border-collapse">
+        <table className="min-w-full text-xs md:text-[13px] border-collapse">
           <thead>
-            <tr className={darkMode ? 'bg-blue-900/30' : 'bg-blue-50'}>
-              {table.headers.map((h, i) => (
+            <tr className={darkMode ? 'bg-green-900/30' : 'bg-green-50'}>
+              {headers.map((h, i) => (
                 <th key={i} className={`px-4 py-3 text-left font-black uppercase tracking-wider text-[10px] ${
-                  darkMode ? 'text-blue-300 border-b border-white/10' : 'text-blue-700 border-b border-blue-100'
+                  darkMode ? 'text-green-300 border-b border-white/10' : 'text-green-700 border-b border-green-100'
                 }`}>
                   {h}
                 </th>
@@ -135,21 +89,24 @@ function DataTable({ table, darkMode }) {
             </tr>
           </thead>
           <tbody>
-            {table.rows.map((row, ri) => (
-              <tr key={ri} className={`transition-colors ${
-                ri % 2 === 0
-                  ? (darkMode ? 'bg-white/[0.02]' : 'bg-white')
-                  : (darkMode ? 'bg-white/[0.05]' : 'bg-slate-50')
-              } ${darkMode ? 'hover:bg-white/10' : 'hover:bg-blue-50/50'} ${ri === table.rows.length - 1 && table.rows[ri][1] === 'Total' ? 'font-bold' : ''}`}>
-                {row.map((cell, ci) => (
-                  <td key={ci} className={`px-4 py-2.5 ${
-                    darkMode ? 'text-slate-300 border-b border-white/5' : 'text-slate-700 border-b border-slate-100'
-                  } ${ci === 0 ? 'font-semibold' : ''}`}>
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {rows.map((row, ri) => {
+              const isTotal = row[1] === 'Total' || row[0] === '' || row[0].toLowerCase().includes('total');
+              return (
+                <tr key={ri} className={`transition-colors ${
+                  ri % 2 === 0
+                    ? (darkMode ? 'bg-white/[0.01]' : 'bg-white')
+                    : (darkMode ? 'bg-white/[0.04]' : 'bg-slate-50/50')
+                } ${darkMode ? 'hover:bg-green-500/10' : 'hover:bg-green-50/50'} ${isTotal ? 'font-bold' : ''}`}>
+                  {row.map((cell, ci) => (
+                    <td key={ci} className={`px-4 py-2.5 ${
+                      darkMode ? 'text-slate-300 border-b border-white/5' : 'text-slate-700 border-b border-slate-100'
+                    } ${ci === 0 ? 'font-medium' : ''}`}>
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -162,61 +119,68 @@ export default function BiayaEvakuasi() {
   const { darkMode } = useTheme();
   const router = useRouter();
 
+  const [tables, setTables] = useState({
+    t1: null, t2: null, t3: null, t4: null, t5: null
+  });
+
+  useEffect(() => {
+    const load = (num, skipFirst = false) => {
+      fetch(`${APP_DIR}/B04_TABLE_${num}.csv`)
+        .then(r => r.text())
+        .then(txt => {
+          let finalTxt = txt;
+          if (skipFirst) {
+            const lines = txt.split('\n');
+            finalTxt = lines.slice(1).join('\n');
+          }
+          setTables(prev => ({ ...prev, [`t${num}`]: parseCSV(finalTxt) }));
+        })
+        .catch(console.error);
+    };
+
+    load(1);
+    load(2);
+    load(3, true); // skip Title row
+    load(4, true); // skip Title row
+    load(5);
+  }, []);
+
   return (
     <div className={`min-h-screen transition-colors duration-300 relative overflow-x-hidden ${
       darkMode ? 'bg-[#040608] text-gray-200' : 'bg-slate-50 text-gray-800'
     }`}>
       <Header />
 
-      {/* Background Decor */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-20 ${
-          darkMode ? 'bg-blue-600' : 'bg-blue-200'
-        }`} />
-        <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-10 ${
-          darkMode ? 'bg-indigo-600' : 'bg-indigo-200'
-        }`} />
+      <div className="fixed inset-0 pointer-events-none -z-10">
+        <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-20 ${darkMode ? 'bg-green-600' : 'bg-green-200'}`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-10 ${darkMode ? 'bg-emerald-600' : 'bg-emerald-200'}`} />
         <div className={`absolute inset-0 opacity-[0.03] ${darkMode ? 'invert' : ''}`}
           style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
       </div>
 
-      <main className="max-w-4xl mx-auto px-6 pt-28 pb-24 md:pt-36">
-        {/* Back button */}
+      <main className="max-w-6xl mx-auto px-6 pt-28 pb-24 md:pt-36">
         <button
-          onClick={() => router.back()}
-          className={`flex items-center gap-2 mb-8 text-xs font-bold uppercase tracking-widest transition-colors ${
-            darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-blue-600'
-          }`}
+          onClick={() => router.push('/others')}
+          className={`flex items-center gap-2 mb-8 text-xs font-bold uppercase tracking-widest transition-colors ${darkMode ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-blue-600'}`}
         >
-          <ArrowLeft size={14} />
-          Kembali ke Others Product
+          <ArrowLeft size={14} /> Kembali ke Kajian Lain
         </button>
 
-        {/* Hero card */}
-        <div className={`rounded-[2rem] border p-8 md:p-12 mb-12 bg-gradient-to-br ${
-          darkMode
-            ? 'from-green-500/10 to-emerald-500/5 border-green-500/20 bg-white/5'
-            : 'from-green-50 to-emerald-50 border-green-100 shadow-xl'
-        }`}>
-          <span className={`inline-block text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-5 ${
-            darkMode ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700 border border-green-200'
-          }`}>
+        <div className={`rounded-[2rem] border p-8 md:p-12 mb-12 bg-gradient-to-br ${darkMode ? 'from-green-500/10 to-emerald-500/5 border-green-500/20 bg-white/5' : 'from-green-50 to-emerald-50 border-green-100 shadow-xl'}`}>
+          <span className={`inline-block text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-5 ${darkMode ? 'bg-green-500/20 text-green-300' : 'bg-green-100 text-green-700 border border-green-200'}`}>
             Evacuation Cost · Kajian B04
           </span>
-          <h1 className={`text-2xl md:text-3xl font-black uppercase tracking-tight leading-tight mb-4 ${
-            darkMode ? 'text-white' : 'text-slate-900'
-          }`}>
+          <h1 className={`text-2xl md:text-3xl font-black uppercase tracking-tight leading-tight mb-4 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
             Penentuan Biaya Evakuasi
           </h1>
           <p className={`text-sm leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-            Kalkulasi biaya operasional evakuasi penduduk terdampak mencakup transportasi, logistik, dan kebutuhan dasar selama masa evakuasi.
+            Kalkulasi biaya operasional evakuasi penduduk terdampak mencakup pengeluaran kebutuhan dasar harian per orang selama masa pengungsian.
           </p>
         </div>
 
-        {/* ── PENDAHULUAN ──────────────────────────────── */}
-        <article className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <SectionHeading darkMode={darkMode}>Pendahuluan</SectionHeading>
-
+        <article className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-4xl mx-auto">
+          <SectionHeading darkMode={darkMode}>PENDAHULUAN</SectionHeading>
+          
           <Paragraph darkMode={darkMode}>
             Estimasi biaya evakuasi dalam studi ini dilakukan untuk mengukur pengeluaran kebutuhan dasar harian per orang selama masa pengungsian yang disebabkan oleh peristiwa bencana. Perhitungan ini merujuk pada Peraturan Kepala Badan Nasional Penanggulangan Bencana (BNPB) Nomor 7 Tahun 2008 tentang Pedoman Tata Cara Pemberian Bantuan Pemenuhan Kebutuhan Dasar. Peraturan ini memberikan referensi standar mengenai persyaratan harian minimum yang harus dipenuhi bagi penduduk terdampak selama fase tanggap darurat dan evakuasi.
           </Paragraph>
@@ -229,7 +193,7 @@ export default function BiayaEvakuasi() {
             Biaya evakuasi yang dihasilkan mencerminkan kebutuhan finansial minimum yang diperlukan untuk mendukung satu pengungsi per hari selama masa pengungsian. Nilai ini selanjutnya dapat diskalakan berdasarkan perkiraan jumlah penduduk yang terdampak dan durasi evakuasi untuk mendukung perencanaan respons bencana serta penilaian dampak ekonomi. Kumpulan data dan parameter yang digunakan dalam perhitungan biaya evakuasi dirangkum dalam Tabel 1.
           </Paragraph>
 
-          <DataTable table={table1} darkMode={darkMode} />
+          <DataTable parsedData={tables.t1} caption="Tabel 1. Data yang digunakan untuk menentukan biaya evakuasi" darkMode={darkMode} />
 
           <Paragraph darkMode={darkMode}>
             Untuk memastikan konsistensi dan menghindari bias dalam estimasi biaya, seluruh harga satuan yang digunakan dalam studi ini berasal dari institusi resmi dan referensi pasar yang berlaku. Harga 400 g beras per orang per hari diperoleh dari Badan Pangan Nasional, yang mencerminkan harga acuan resmi untuk komoditas pangan pokok. Biaya makanan siap saji didasarkan pada program Makan Bergizi Gratis (MBG), menggunakan standar harga makanan yang ditetapkan oleh Badan Gizi Nasional, yang merupakan tolok ukur dukungan pemerintah untuk penyediaan makanan harian.
@@ -253,13 +217,13 @@ export default function BiayaEvakuasi() {
 
           <Paragraph darkMode={darkMode}>
             Komponen bantuan yang dipertimbangkan dalam estimasi alternatif ini meliputi:
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li>Jaminan Hidup (Jadup): Rp10.000 per orang per hari;</li>
-              <li>Bantuan Lauk Pauk: Rp300.000 – Rp450.000 per bulan per rumah tangga;</li>
-              <li>Beras: 10 kg beras per rumah tangga per bulan;</li>
-              <li>Dana Tunggu Hunian (DTH): Rp600.000 per rumah tangga per bulan untuk rumah tangga yang tidak tinggal di tempat penampungan sementara.</li>
-            </ul>
           </Paragraph>
+          <ul className={`list-disc ml-8 mb-6 mt-2 space-y-2 text-sm md:text-[15px] opacity-80 ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+            <li>Jaminan Hidup (Jadup): Rp10.000 per orang per hari;</li>
+            <li>Bantuan Lauk Pauk: Rp300.000 – Rp450.000 (18 – 24 USD) per bulan per rumah tangga;</li>
+            <li>Beras: 10 kg beras per rumah tangga per bulan;</li>
+            <li>Dana Tunggu Hunian (DTH): Rp600.000 (36 USD) per rumah tangga per bulan untuk rumah tangga yang tidak tinggal di tempat penampungan sementara.</li>
+          </ul>
 
           <Paragraph darkMode={darkMode}>
             Untuk tujuan perhitungan, satu rumah tangga (Kepala Keluarga, KK) diasumsikan terdiri dari 4 anggota, mengikuti asumsi demografis umum yang digunakan dalam penilaian dampak bencana. Nilai bantuan bulanan berbasis rumah tangga dikonversi menjadi biaya per orang per hari untuk menjaga konsistensi dengan kerangka biaya evakuasi yang digunakan dalam estimasi biaya rendah. Perlu dicatat bahwa nilai bantuan yang diterapkan dalam skenario ini merupakan usulan kebijakan dan rentang dukungan yang umum diimplementasikan, yang mungkin bervariasi tergantung pada peraturan pemerintah daerah dan keputusan Kementerian Sosial. Oleh karena itu, skenario ini dimaksudkan untuk merepresentasikan estimasi biaya evakuasi berbasis kebijakan yang moderat, bukan nilai tetap atau universal.
@@ -281,11 +245,10 @@ export default function BiayaEvakuasi() {
             Jumlah pengungsi yang digunakan dalam perhitungan ini mewakili populasi yang terpapar langsung oleh dampak banjir dan memerlukan pemindahan sementara. Data jumlah pengungsi di setiap pos pengungsian selama peristiwa banjir September 2025 di Bali disajikan dalam Tabel 2 dan merupakan input paparan utama untuk penilaian biaya evakuasi.
           </Paragraph>
 
-          <DataTable table={table2} darkMode={darkMode} />
+          <DataTable parsedData={tables.t2} caption="Tabel 2. Jumlah pengungsi di pos pengungsian selama peristiwa banjir September 2025 di Bali" darkMode={darkMode} />
 
-          {/* ── ASUMSI DAN LIMITASI ────────────────────────── */}
-          <SectionHeading darkMode={darkMode}>Asumsi dan Limitasi</SectionHeading>
-
+          <SectionHeading darkMode={darkMode}>ASUMSI DAN LIMITASI</SectionHeading>
+          
           <Paragraph darkMode={darkMode}>
             Beberapa asumsi dan batasan diterapkan dalam estimasi biaya evakuasi untuk memastikan konsistensi metodologis dan kelayakan di tengah keterbatasan data. Biaya evakuasi harian per orang diasumsikan seragam di seluruh pos pengungsian, tanpa memandang perbedaan logistik lokal, aksesibilitas, atau kapasitas manajemen. Asumsi ini diperlukan karena tidak adanya catatan pengeluaran spesifik untuk masing-masing pos pengungsian.
           </Paragraph>
@@ -322,47 +285,52 @@ export default function BiayaEvakuasi() {
             Komponen bantuan natura, seperti distribusi beras dan dukungan dapur umum, diuangkan dan diintegrasikan ke dalam kerangka kerja per orang per hari demi konsistensi dengan estimasi biaya rendah. Konversi ini mengasumsikan bahwa nilai moneter dari bantuan setara dengan konsumsi aktual, yang mungkin tidak sepenuhnya mewakili pola pemanfaatan nyata atau kecukupan gizi selama evakuasi.
           </Paragraph>
 
-          {/* ── BIAYA EVAKUASI PER ORANG ───────────────────── */}
-          <SectionHeading darkMode={darkMode}>Biaya Evakuasi Per Orang</SectionHeading>
+          <Paragraph darkMode={darkMode}>
+            Selain itu, skenario berbasis kebijakan tidak memperhitungkan secara eksplisit tumpang tindih antara komponen bantuan, seperti penyediaan Jadup, makanan bersama, and bantuan beras secara bersamaan. Konsekuensinya, estimasi biaya evakuasi tersebut mungkin mewakili potensi batas atas dari pengeluaran yang didukung kebijakan, dan bukan biaya pasti yang terealisasi per pengungsi.
+          </Paragraph>
+
+          <SectionHeading darkMode={darkMode}>BIAYA EVAKUASI PER ORANG</SectionHeading>
 
           <Paragraph darkMode={darkMode}>
-            Hasil perhitungan biaya evakuasi pada tingkat individu disajikan dalam Tabel 3 dan Tabel 4, yang merangkum estimasi biaya evakuasi harian per orang dalam dua skenario berbeda: (1) skenario biaya rendah (kebutuhan dasar minimum) dan (2) skenario biaya evakuasi berbasis kebijakan.
+            Hasil perhitungan biaya evakuasi pada tingkat individu disajikan dalam Tabel 3 dan Tabel 4, yang merangkum estimasi biaya evakuasi harian per orang dalam dua skenario berbeda: (1) skenario biaya rendah (kebutuhan dasar minimum) and (2) skenario biaya evakuasi berbasis kebijakan.
           </Paragraph>
 
           <Paragraph darkMode={darkMode}>
             Dalam skenario biaya rendah (kebutuhan dasar minimum), total biaya evakuasi harian per orang diperkirakan sebesar Rp71.773,25 (USD 4,306). Nilai ini merepresentasikan pengeluaran minimum yang diperlukan untuk mendukung satu pengungsi per hari di pos pengungsian, berdasarkan kebutuhan esensial yang ditetapkan oleh pedoman BNPB. Konsumsi pangan merupakan komponen terbesar dari total biaya, diikuti oleh kebutuhan sanitasi dan penyediaan air minum, sementara air bersih memberikan kontribusi yang relatif kecil.
           </Paragraph>
 
-          <DataTable table={table3} darkMode={darkMode} />
+          <DataTable parsedData={tables.t3} caption="Tabel 3. Biaya evakuasi harian per orang (skenario biaya rendah)" darkMode={darkMode} />
 
           <Paragraph darkMode={darkMode}>
             Selain estimasi kebutuhan minimum, Tabel 4 menyajikan skenario biaya evakuasi berbasis kebijakan, yang mencerminkan skema bantuan yang didukung pemerintah. Dalam skenario ini, estimasi biaya evakuasi harian per orang berjumlah Rp42.240,00 (USD 2,534).
           </Paragraph>
 
-          <DataTable table={table4} darkMode={darkMode} />
+          <DataTable parsedData={tables.t4} caption="Tabel 4. Biaya evakuasi harian per orang (skenario biaya berbasis kebijakan)" darkMode={darkMode} />
 
-          {/* ── ESTIMASI STUDI KASUS ───────────────────────── */}
-          <SectionHeading darkMode={darkMode}>Estimasi Biaya Evakuasi pada Studi Kasus Bencana Banjir Bali September 2025</SectionHeading>
+          <SectionHeading darkMode={darkMode}>ESTIMASI BIAYA EVAKUASI PADA STUDI KASUS BENCANA BANJIR BALI SEPTEMBER 2025</SectionHeading>
 
           <Paragraph darkMode={darkMode}>
-            Setelah estimasi biaya evakuasi harian pada tingkat individu, hasilnya diskalakan ke tingkat pos pengungsian dengan memasukkan jumlah pengungsi yang ditampung di setiap lokasi evakuasi. Tabel 5 menyajikan estimasi total biaya evakuasi harian untuk setiap pos pengungsian selama peristiwa banjir September 2025 di Bali, yang dihitung baik dalam skenario biaya rendah maupun berbasis kebijakan.
+            Setelah estimasi biaya evakuasi harian pada tingkat individu, hasilnya diskalakan ke tingkat pos pengungsian dengan memasukkan jumlah pengungsi yang ditampung di setiap lokasi evakuasi. Tabel 5 juga menyajikan estimasi total biaya evakuasi harian untuk setiap pos pengungsian selama peristiwa banjir September 2025 di Bali, yang dihitung baik dalam skenario biaya rendah maupun berbasis kebijakan.
           </Paragraph>
 
           <Paragraph darkMode={darkMode}>
-            Secara total, agregat biaya evakuasi harian di seluruh pos pengungsian mencapai USD 10.920,02 dalam skenario biaya rendah dan USD 6.416,08 dalam skenario berbasis kebijakan, untuk total 2.536 individu yang mengungsi. Nilai-nilai ini mewakili estimasi kebutuhan finansial yang diperlukan untuk mendukung seluruh pengungsi selama satu hari di bawah tingkat intervensi pemerintah yang berbeda.
+            Secara total, agregat biaya evakuasi harian di seluruh pos pengungsian mencapai USD 10.920,02 dalam skenario biaya rendah dan USD 6.416,08 dalam skenario berbasis kebijakan, untuk total 2.536 individu yang mengungsi. Nilai-nilai ini mewakili estimasi kebutuhan finansial yang diperlukan untuk mendukung seluruh pengungsi selama satu hari di bawah tingkat intervensi pemerintah yang berbeda. Hasil ini memberikan dasar kuantitatif untuk menilai beban ekonomi evakuasi dan dapat dikalikan lebih lanjut dengan durasi pengungsian untuk memperkirakan total pengeluaran evakuasi selama seluruh periode bencana.
           </Paragraph>
 
-          <DataTable table={table5} darkMode={darkMode} />
+          <DataTable parsedData={tables.t5} caption="Tabel 5. Total biaya evakuasi untuk setiap pos pengungsian" darkMode={darkMode} />
 
-          {/* ── KESIMPULAN ───────────────────────────────── */}
-          <SectionHeading darkMode={darkMode}>Kesimpulan</SectionHeading>
+          <SectionHeading darkMode={darkMode}>KESIMPULAN</SectionHeading>
 
           <Paragraph darkMode={darkMode}>
             Bagian ini menyajikan kerangka kerja standar untuk memperkirakan biaya evakuasi dengan mengukur pengeluaran kebutuhan dasar harian per orang selama masa pengungsian akibat bencana. Dengan menerapkan Peraturan BNPB No. 7/2008, harga pasar yang berlaku, dan skema bantuan yang didukung pemerintah, analisis ini menghasilkan dua skenario biaya evakuasi yang merepresentasikan kondisi kebutuhan minimum dan berbasis kebijakan.
           </Paragraph>
 
           <Paragraph darkMode={darkMode}>
-            Hasil penelitian menunjukkan bahwa biaya evakuasi terutama didorong oleh konsumsi pangan dan air minum, sementara sanitasi dan air bersih merupakan komponen yang lebih kecil namun tetap esensial. Penskalaan biaya per orang menggunakan jumlah pengungsi di setiap pos pengungsian memungkinkan konversi yang konsisten dari biaya tingkat individu ke pengeluaran tingkat pos pengungsian dan total biaya evakuasi.
+            Hasil penelitian menunjukkan bahwa biaya evakuasi terutama didorong oleh konsumsi pangan dan air minum, sementara sanitasi dan air bersih merupakan komponen yang lebih kecil namun tetap esensial. Penskalaan biaya per orang menggunakan jumlah pengungsi di setiap pos pengungsian memungkinkan konversi yang konsisten dari biaya tingkat individu ke pengeluaran tingkat pos pengungsian dan total biaya evakuasi, yang menyoroti variasi substansial yang didorong oleh jumlah penghuni pos pengungsian.
+          </Paragraph>
+
+          <Paragraph darkMode={darkMode}>
+            Terlepas dari asumsi penyederhanaan yang diterapkan, kerangka kerja yang diusulkan memberikan dasar yang praktis dan transparan untuk memperkirakan pengeluaran terkait evakuasi. Dengan menggabungkan skenario minimum dan skenario yang didukung kebijakan, hasil ini mendukung perencanaan respons bencana, estimasi anggaran, dan penilaian dampak ekonomi yang lebih fleksibel di bawah berbagai tingkat intervensi dan kapasitas dukungan pemerintah.
           </Paragraph>
         </article>
       </main>

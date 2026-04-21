@@ -58,7 +58,7 @@ export default function TanggulBanjir() {
           }`}
         >
           <ArrowLeft size={14} />
-          Kembali ke Others Product
+          Kembali ke Kajian Lain
         </button>
 
         {/* Hero card */}

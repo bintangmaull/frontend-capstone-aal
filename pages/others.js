@@ -83,6 +83,16 @@ const kajianList = [
     tag: 'Road Impact',
     href: '/others/jalan-terdampak',
   },
+  {
+    id: 9,
+    title: 'DAFTAR REFERENSI',
+    description: 'Kumpulan rujukan ilmiah, dataset global, dan publikasi akademik yang menjadi landasan dalam pengembangan model risiko bencana.',
+    icon: '📚',
+    color: 'from-blue-600/20 to-indigo-600/10',
+    border: 'border-blue-600/20',
+    tag: 'Scientific Sources',
+    href: '/others/referensi',
+  },
 ];
 
 export default function Others() {
@@ -133,9 +143,8 @@ export default function Others() {
                 darkMode ? 'text-white' : 'text-slate-900'
               }`}
             >
-              Others{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
-                Product
+               Kajian Lain
               </span>
             </h1>
             <p

@@ -1,5 +1,5 @@
 import Header from '../components/Header'
-import { Facebook, Instagram, Twitter, Globe, ArrowRight, FileText, Activity, ShieldCheck, Map as MapIcon } from "lucide-react";
+import { ArrowRight, FileText, Map as MapIcon } from "lucide-react";
 import { useTheme } from '../context/ThemeContext';
 import { useRouter } from 'next/router';
 
@@ -38,25 +38,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Feature Highlight Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl pt-4">
-            <div className={`p-8 rounded-[2rem] border transition-all duration-500 hover:scale-[1.02] ${darkMode ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10' : 'bg-white border-slate-200 text-slate-700 shadow-xl'
-              }`}>
-              <div className="h-10 w-10 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4 mx-auto">
-                <Activity size={20} className="text-blue-500" />
-              </div>
-              <p className="text-sm md:text-base leading-relaxed font-semibold mb-2">Multi-Hazard Analysis</p>
-              <p className="text-xs opacity-70">Gempa Bumi, Banjir, Tsunami, dan Kekeringan secara komprehensif.</p>
-            </div>
-            <div className={`p-8 rounded-[2rem] border transition-all duration-500 hover:scale-[1.02] ${darkMode ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10' : 'bg-white border-slate-200 text-slate-700 shadow-xl'
-              }`}>
-              <div className="h-10 w-10 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4 mx-auto">
-                <ShieldCheck size={20} className="text-blue-500" />
-              </div>
-              <p className="text-sm md:text-base leading-relaxed font-semibold mb-2">Economic Loss Estimations</p>
-              <p className="text-xs opacity-70">Perhitungan metrik Average Annual Loss (AAL) dan Probable Maximum Loss (PML).</p>
-            </div>
-          </div>
 
           {/* Mission Quote */}
           <div className="flex flex-col items-center pt-8 space-y-4">
@@ -74,7 +55,7 @@ export default function Home() {
               onClick={() => router.push('/peta')}
               className="group flex items-center gap-2 px-10 py-4 bg-blue-600 text-white rounded-2xl font-bold text-base hover:bg-blue-700 shadow-[0_10px_30px_rgba(37,99,235,0.3)] transition-all transform hover:scale-105 active:scale-95"
             >
-              Our Product
+              Pemodelan Bencana
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </button>
             <button
@@ -85,7 +66,7 @@ export default function Home() {
                 }`}
             >
               <MapIcon size={20} />
-              Others Product
+              Kajian Lain
             </button>
             <button
               onClick={() => router.push('/about')}
@@ -95,7 +76,7 @@ export default function Home() {
                 }`}
             >
               <FileText size={20} />
-              About Us
+              Tentang Kami
             </button>
           </div>
         </div>
@@ -109,15 +90,6 @@ export default function Home() {
               Bali <span className="text-blue-500">Risk Dashboard</span>
             </span>
             <p className="text-xs text-gray-500">© {new Date().getFullYear()} Bali Multi-Hazard Risk Dashboard. All rights reserved.</p>
-          </div>
-          <div className="flex gap-4">
-            {[Facebook, Instagram, Twitter, Globe].map((Icon, idx) => (
-              <a key={idx} href="#" className={`p-3 rounded-xl transition-all border ${darkMode ? 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
-                : 'bg-white border-slate-200 text-slate-400 hover:text-blue-600 shadow-sm'
-                }`}>
-                <Icon size={20} strokeWidth={2} />
-              </a>
-            ))}
           </div>
         </div>
       </footer>

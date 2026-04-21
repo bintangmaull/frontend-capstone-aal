@@ -35,7 +35,7 @@ export default function About() {
     'Dr. Fiza Wira Atmaja, S.Si., M.B.A.',
     'Ricky Jaya Kusuma, S.T., M.T.',
     'Zidane Luthfi Salim, S.T., M.T.',
-    'Dinda Puspa Vidya, S.T.',
+    'Dinda Puspa Vidya, S.T., M.T.',
     'Farah Diba Aulia Yasmin, S.T.',
     'Bintang Maulana Magribi, S.T.'
   ]
@@ -61,7 +61,7 @@ export default function About() {
               <span className="text-[10px] font-bold tracking-[0.3em] text-blue-400 uppercase leading-none">Visi & Misi • Dashboard Risiko</span>
             </div>
             <h1 className={`text-3xl md:text-4xl font-black tracking-tighter leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-              About <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Us</span>
+              Tentang <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Kami</span>
             </h1>
             <p className={`text-sm md:text-base leading-relaxed text-center italic opacity-80 ${darkMode ? 'text-slate-300' : 'text-slate-600'}`}>
               Bali Multi-Hazard Risk Dashboard dikembangkan berdasarkan penelitian catastrophe modelling yang berfokus pada analisis risiko bencana di Provinsi Bali.
@@ -76,7 +76,7 @@ export default function About() {
               <div className="h-10 w-10 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6">
                 <span className="text-xl">🏛️</span>
               </div>
-              <h3 className={`text-lg font-black mb-3 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Leadership & Research</h3>
+              <h3 className={`text-lg font-black mb-3 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Kepemimpinan & Penelitian</h3>
               <p className="text-xs md:text-sm leading-relaxed opacity-90">
                 Penelitian ini dipimpin oleh <strong>Dr. Riantini Virtriana</strong> sebagai Associate Professor di bidang Disaster Risk Assessment, Fakultas Ilmu dan Teknologi Kebumian, Institut Teknologi Bandung.
               </p>
@@ -88,7 +88,7 @@ export default function About() {
               <div className="h-10 w-10 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6">
                 <span className="text-xl">📊</span>
               </div>
-              <h3 className={`text-lg font-black mb-3 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Methodology</h3>
+              <h3 className={`text-lg font-black mb-3 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Metodologi</h3>
               <p className="text-xs md:text-sm leading-relaxed opacity-90">
                 Studi ini mengintegrasikan pemodelan hazard, data exposure, serta kurva vulnerability untuk mengestimasi dampak dan kerugian finansial akibat bencana alam.
               </p>
@@ -98,7 +98,7 @@ export default function About() {
           {/* Research Team Section */}
           <section className="w-full max-w-5xl space-y-8">
             <div className="flex flex-col items-center text-center space-y-2">
-              <h2 className={`text-2xl md:text-3xl font-black tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>Research Team</h2>
+              <h2 className={`text-2xl md:text-3xl font-black tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>Tim Peneliti</h2>
               <div className="h-1 w-20 bg-blue-600 rounded-full" />
             </div>
 
@@ -122,7 +122,7 @@ export default function About() {
               </p>
               <div className="flex items-center gap-4 pt-2">
                 <div className="h-[1px] w-12 bg-blue-500/30" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-500">Project Mission</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-500">Misi Proyek</span>
                 <div className={`h-[1px] w-12 bg-blue-500/30`} />
               </div>
             </div>

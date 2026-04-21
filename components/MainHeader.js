@@ -49,12 +49,14 @@ export default function Header() {
               <img src="/logobali.png" alt="Bali" className="h-full w-auto" />
             </div>
             <Link href="/" className="flex items-center leading-tight min-w-0">
-              <h1 className={`${isMapPage ? 'text-[10px]' : 'text-lg'} tracking-tighter flex items-baseline gap-2 font-black whitespace-nowrap`}>
-                <span className={`uppercase tracking-widest ${isMapPage ? 'text-[8px]' : ''} ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-                  CATALYST
-                </span>
-                <span className={`text-[#1E5C9A] font-bold opacity-40 mx-0.5 ${isMapPage ? 'text-[10px]' : 'text-sm'}`}>:</span>
-                <span className={`text-blue-500 uppercase tracking-widest ${isMapPage ? 'text-[6px] antialiased' : 'text-[10px]'}`}>
+              <h1 className="flex flex-col md:flex-row md:items-baseline items-start leading-tight tracking-tighter min-w-0">
+                <div className="flex items-center gap-1">
+                  <span className={`uppercase font-black tracking-widest ${isMapPage ? 'text-[8px] md:text-[10px]' : 'text-base md:text-lg'} ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                    CATALYST
+                  </span>
+                  <span className={`hidden md:inline text-[#1E5C9A] font-bold opacity-40 ${isMapPage ? 'text-[10px]' : 'text-sm'}`}>:</span>
+                </div>
+                <span className={`text-blue-500 font-bold uppercase tracking-widest ${isMapPage ? 'text-[5px] md:text-[6px]' : 'text-[7px] md:text-[10px]'} mt-0 md:mt-0`}>
                   Catastrophic Average Annual Loss Analyst
                 </span>
               </h1>
@@ -71,10 +73,10 @@ export default function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center justify-center space-x-12 relative h-full">
             {[
-              { path: '/', label: 'HOME' },
-              { path: '/peta', label: 'OUR PRODUCT' },
-              { path: '/others', label: 'OTHERS PRODUCT' },
-              { path: '/about', label: 'ABOUT US' }
+              { path: '/', label: 'BERANDA' },
+              { path: '/peta', label: 'PEMODELAN BENCANA' },
+              { path: '/others', label: 'KAJIAN LAIN' },
+              { path: '/about', label: 'TENTANG KAMI' }
             ].map((item) => (
               <button
                 key={item.path}
@@ -148,10 +150,10 @@ export default function Header() {
         }`}>
           <div className="flex flex-col px-6 py-4 space-y-2">
             {[
-              { path: '/', label: 'HOME' },
-              { path: '/peta', label: 'OUR PRODUCT' },
-              { path: '/others', label: 'OTHERS PRODUCT' },
-              { path: '/about', label: 'ABOUT US' }
+              { path: '/', label: 'BERANDA' },
+              { path: '/peta', label: 'PEMODELAN BENCANA' },
+              { path: '/others', label: 'KAJIAN LAIN' },
+              { path: '/about', label: 'TENTANG KAMI' }
             ].map((item) => (
               <button
                 key={item.path}

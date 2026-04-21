@@ -49,10 +49,12 @@ export default function Header() {
             <img src="/logobali.png" alt="Bali" className="h-6 w-auto" />
           </div>
           <Link href="/" className="flex items-center leading-none">
-            <h1 className="text-base md:text-lg tracking-tighter flex items-center gap-2">
-              <span className={`font-black uppercase ${darkMode ? 'text-white' : 'text-slate-900'}`}>CATALYST</span>
-              <span className={`text-[#1E5C9A] font-bold opacity-40 mx-0.5 text-sm md:text-base`}>:</span>
-              <span className="text-blue-500 font-semibold text-[10px] md:text-xs truncate md:overflow-visible uppercase tracking-wider">Catastrophic Average Annual Loss Analyst</span>
+            <h1 className="flex flex-col md:flex-row md:items-center items-start leading-none tracking-tighter">
+              <div className="flex items-center gap-1.5">
+                <span className={`font-black uppercase text-base md:text-lg ${darkMode ? 'text-white' : 'text-slate-900'}`}>CATALYST</span>
+                <span className={`hidden md:inline text-[#1E5C9A] font-bold opacity-40 text-sm md:text-base`}>:</span>
+              </div>
+              <span className="text-blue-500 font-bold text-[7px] md:text-xs uppercase tracking-widest mt-0.5 md:mt-0">Catastrophic Average Annual Loss Analyst</span>
             </h1>
           </Link>
         </div>
@@ -60,10 +62,10 @@ export default function Header() {
         {/* Center: Navigation */}
         <nav className="hidden md:flex items-center justify-center space-x-12">
           {[
-            { path: '/', label: 'Home' },
-            { path: '/peta', label: 'Our Product' },
-            { path: '/others', label: 'Others Product' },
-            { path: '/about', label: 'About Us' }
+            { path: '/', label: 'Beranda' },
+            { path: '/peta', label: 'Pemodelan Bencana' },
+            { path: '/others', label: 'Kajian Lain' },
+            { path: '/about', label: 'Tentang Kami' }
           ].map((item) => (
             <button
               key={item.path}
@@ -139,10 +141,10 @@ export default function Header() {
           }`}>
           <div className="flex flex-col px-4 pt-2 space-y-2">
             {[
-              { path: '/', label: 'Home' },
-              { path: '/peta', label: 'Our Product' },
-              { path: '/others', label: 'Others Product' },
-              { path: '/about', label: 'About Us' }
+              { path: '/', label: 'Beranda' },
+              { path: '/peta', label: 'Pemodelan Bencana' },
+              { path: '/others', label: 'Kajian Lain' },
+              { path: '/about', label: 'Tentang Kami' }
             ].map((item) => (
               <button
                 key={item.path}
