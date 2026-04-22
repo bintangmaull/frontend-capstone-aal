@@ -58,7 +58,7 @@ export default function About() {
           {/* Header Section */}
           <section className="text-center space-y-6 max-w-5xl">
             <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-md mb-4">
-              <span className="text-[10px] font-bold tracking-[0.3em] text-blue-400 uppercase leading-none">Visi & Misi • Dashboard Risiko</span>
+              <span className="text-[10px] font-bold tracking-[0.3em] text-blue-400 uppercase leading-none">Dashboard Risiko</span>
             </div>
             <h1 className={`text-3xl md:text-4xl font-black tracking-tighter leading-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
               Tentang <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Kami</span>
@@ -112,7 +112,7 @@ export default function About() {
               ))}
             </div>
           </section>
-          
+
           {/* Mission Conclusion */}
           <section className={`w-full max-w-4xl p-10 rounded-[3rem] border transition-all text-center relative overflow-hidden group ${darkMode ? 'bg-blue-600/5 border-blue-500/20' : 'bg-blue-50 border-blue-100 shadow-inner'
             }`}>
@@ -122,7 +122,7 @@ export default function About() {
               </p>
               <div className="flex items-center gap-4 pt-2">
                 <div className="h-[1px] w-12 bg-blue-500/30" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-500">Misi Proyek</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-500"></span>
                 <div className={`h-[1px] w-12 bg-blue-500/30`} />
               </div>
             </div>
