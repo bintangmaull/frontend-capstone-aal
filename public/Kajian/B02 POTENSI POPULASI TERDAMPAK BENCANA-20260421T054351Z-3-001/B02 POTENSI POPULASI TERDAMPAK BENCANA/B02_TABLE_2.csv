@@ -1,19 +1,25 @@
-Bahaya,Kelas Bahaya,Proporsi Kelas Bahaya (%) di Desa,,
-,,Antap,Antapan,Antiga
-"Banjir
- (25-tahun; tanpa perubahan iklim)",Tanpa Kelas,89.65,93.80,83.42
-"Banjir
- (25-tahun; tanpa perubahan iklim)",Rendah,2.98,0.74,4.21
-"Banjir
- (25-tahun; tanpa perubahan iklim)",Sedang,2.48,0.49,3.48
-"Banjir
- (25-tahun; tanpa perubahan iklim)",Tinggi,4.90,4.97,8.89
-Tsunami,Tanpa Kelas,36.51,100.00,85.34
-Tsunami,Rendah,13.10,0.00,6.81
-Tsunami,Sedang,3.17,0.00,3.66
-Tsunami,Tinggi,47.22,0.00,4.19
-Gempa Bumi,No Damage,99.48,99.72,99.72
-Gempa Bumi,Slight,0.44,0.26,0.25
-Gempa Bumi,Moderate,0.04,0.01,0.01
-Gempa Bumi,Extensive,0.03,0.01,0.01
-Gempa Bumi,Collapse,0.02,0.00,0.01
+No.,Disable Group [D],No.,Age Group [A],Code
+1,Disabled Male,1,Children (0 - 9 years),D1A1
+1,Disabled Male,2,Adolescent (10 - 19 years),D1A2
+1,Disabled Male,3,Young Adults (20 - 39 years),D1A3
+1,Disabled Male,4,Middle Age (40 - 59 years),D1A4
+1,Disabled Male,5,Elderly (60 - 69 years),D1A5
+1,Disabled Male,6,Senior (> 69 years),D1A6
+2,Disabled Female,1,Children (0 - 9 years),D2A1
+2,Disabled Female,2,Adolescent (10 - 19 years),D2A2
+2,Disabled Female,3,Young Adults (20 - 39 years),D2A3
+2,Disabled Female,4,Middle Age (40 - 59 years),D2A4
+2,Disabled Female,5,Elderly (60 - 69 years),D2A5
+2,Disabled Female,6,Senior (> 69 years),D2A6
+3,Non Disabled Male,1,Children (0 - 9 years),D3A1
+3,Non Disabled Male,2,Adolescent (10 - 19 years),D3A2
+3,Non Disabled Male,3,Young Adults (20 - 39 years),D3A3
+3,Non Disabled Male,4,Middle Age (40 - 59 years),D3A4
+3,Non Disabled Male,5,Elderly (60 - 69 years),D3A5
+3,Non Disabled Male,6,Senior (> 69 years),D3A6
+4,Non Disabled Female,1,Children (0 - 9 years),D4A1
+4,Non Disabled Female,2,Adolescent (10 - 19 years),D4A2
+4,Non Disabled Female,3,Young Adults (20 - 39 years),D4A3
+4,Non Disabled Female,4,Middle Age (40 - 59 years),D4A4
+4,Non Disabled Female,5,Elderly (60 - 69 years),D4A5
+4,Non Disabled Female,6,Senior (> 69 years),D4A6

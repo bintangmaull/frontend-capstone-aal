@@ -168,312 +168,89 @@ function Figure({ src, caption, darkMode }) {
 }
 
 function DataTable({ parsedData, darkMode, caption }) {
-  if (!parsedData) return <div className="p-10 text-center animate-pulse">Loading data...</div>;
+  const [page, setPage] = useState(1);
+  if (!parsedData) return <div className="p-10 text-center animate-pulse">Loading table...</div>;
 
   const { headers, rows } = parsedData;
+  const rowsPerPage = 50;
+  const totalPages = Math.ceil(rows.length / rowsPerPage);
+  const displayedRows = rows.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
   return (
-    <figure className="my-10 flex flex-col items-center gap-3">
-      <figcaption className={`text-xs text-center italic max-w-2xl px-4 ${
+    <figure className="my-10 w-full flex flex-col gap-3">
+      <figcaption className={`text-xs text-center italic max-w-2xl mx-auto px-4 ${
         darkMode ? 'text-slate-400' : 'text-slate-500'
       }`}>
         {caption}
       </figcaption>
-      <div className="w-full overflow-x-auto rounded-2xl border bg-white/5" style={{
-        borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
-      }}>
-        <table className="min-w-full text-xs md:text-[13px] border-collapse">
-          <thead>
-            <tr className={darkMode ? 'bg-blue-900/30' : 'bg-blue-50'}>
-              {headers.map((h, i) => (
-                <th key={i} className={`px-4 py-3 text-left font-black uppercase tracking-wider text-[10px] ${
-                  darkMode ? 'text-blue-300 border-b border-white/10' : 'text-blue-700 border-b border-blue-100'
-                }`}>
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, ri) => (
-              <tr key={ri} className={`transition-colors ${
-                ri % 2 === 0
-                  ? (darkMode ? 'bg-white/[0.01]' : 'bg-white')
-                  : (darkMode ? 'bg-white/[0.04]' : 'bg-slate-50/50')
-              } ${darkMode ? 'hover:bg-blue-500/10' : 'hover:bg-blue-50/50'}`}>
-                {row.map((cell, ci) => (
-                  <td key={ci} className={`px-4 py-2.5 ${
-                    darkMode ? 'text-slate-300 border-b border-white/5' : 'text-slate-700 border-b border-slate-100'
-                  } ${ci === 1 ? 'font-medium' : ''}`}>
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </figure>
-  );
-}
-
-function ComplexDataTable({ parsedData, darkMode, caption }) {
-  if (!parsedData) return <div className="p-10 text-center animate-pulse">Loading table...</div>;
-  
-  return (
-    <figure className="my-10 flex flex-col items-center gap-3">
-      <figcaption className={`text-xs text-center italic max-w-2xl px-4 ${
-        darkMode ? 'text-slate-400' : 'text-slate-500'
-      }`}>
-        {caption}
-      </figcaption>
-      <div className="w-full overflow-x-auto rounded-2xl border" style={{
-        borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
-      }}>
-        <table className="min-w-full text-xs md:text-[13px] border-collapse">
-          <thead>
-            <tr className={darkMode ? 'bg-blue-900/30' : 'bg-blue-50'}>
-              {parsedData.groupHeaders.map((gh, i) => (
-                <th 
-                  key={i} 
-                  colSpan={gh.span}
-                  className={`px-4 py-2 text-center font-black uppercase tracking-widest text-[9px] border-b ${
-                    darkMode ? 'text-blue-300 border-white/10' : 'text-blue-800 border-blue-200'
-                  }`}
-                >
-                  {gh.label}
-                </th>
-              ))}
-            </tr>
-            <tr className={darkMode ? 'bg-blue-900/20' : 'bg-blue-50/50'}>
-              {parsedData.subHeaders.map((sh, i) => (
-                <th 
-                  key={i} 
-                  className={`px-4 py-3 text-left font-bold uppercase tracking-wider text-[10px] whitespace-nowrap border-b ${
-                    darkMode ? 'text-blue-400 border-white/10' : 'text-blue-700 border-blue-100/50'
-                  }`}
-                >
-                  {sh}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {parsedData.data.map((row, ri) => (
-              <tr key={ri} className={`transition-colors ${
-                ri % 2 === 0
-                  ? (darkMode ? 'bg-white/[0.01]' : 'bg-white')
-                  : (darkMode ? 'bg-white/[0.04]' : 'bg-slate-50/50')
-              } ${darkMode ? 'hover:bg-blue-500/10' : 'hover:bg-blue-50/50'}`}>
-                {row.map((cell, ci) => (
-                  <td key={ci} className={`px-4 py-2.5 ${
-                    darkMode ? 'text-slate-300 border-b border-white/5' : 'text-slate-700 border-b border-slate-100'
-                  } ${ci === 0 ? 'font-medium' : ''}`}>
-                    {cell}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </figure>
-  );
-}
-
-function EnhancedDataTable({ parsedData, caption, darkMode, isTable5 = false }) {
-  const [selectedRegency, setSelectedRegency] = useState('All');
-  const [visibleHazards, setVisibleHazards] = useState(['Flood', 'Tsunami', 'Earthquake']);
-  
-  if (!parsedData) return <div className="p-10 text-center animate-pulse">Loading analysis data...</div>;
-
-  const regencies = ['All', ...new Set(parsedData.data.map(row => row[4]).filter(Boolean))].sort();
-  const hazardOptions = ['Flood', 'Tsunami', 'Earthquake'];
-  
-  const isHazardVisible = (hazardName) => {
-    return visibleHazards.some(vh => hazardName.toLowerCase().includes(vh.toLowerCase()));
-  };
-
-  const filteredData = parsedData.data
-    .filter(row => {
-      if (selectedRegency === 'All') return true;
-      return row[4] === selectedRegency;
-    });
-
-  const colIndices = [];
-  for (let i = 0; i < 6; i++) colIndices.push(i);
-
-  parsedData.subHeaders.forEach((sh, i) => {
-    if (i < 6) return;
-    let hazardName = '';
-    if (isTable5) {
-      hazardName = sh;
-    } else {
-      let currentIdx = 0;
-      for (const gh of parsedData.groupHeaders) {
-        if (i >= currentIdx && i < currentIdx + gh.span) {
-          hazardName = gh.label;
-          break;
-        }
-        currentIdx += gh.span;
-      }
-    }
-    if (isHazardVisible(hazardName)) colIndices.push(i);
-  });
-
-  const displaySubHeaders = colIndices.map(i => parsedData.subHeaders[i]);
-  const displayGroupHeaders = [];
-  let currentGroup = null;
-  let currentCount = 0;
-
-  colIndices.forEach(idx => {
-    let originalGroupLabel = '';
-    let currentOriginalIdx = 0;
-    for (const gh of parsedData.groupHeaders) {
-      if (idx >= currentOriginalIdx && idx < currentOriginalIdx + gh.span) {
-        originalGroupLabel = gh.label;
-        break;
-      }
-      currentOriginalIdx += gh.span;
-    }
-
-    if (originalGroupLabel === currentGroup) {
-      currentCount++;
-    } else {
-      if (currentGroup !== null) displayGroupHeaders.push({ label: currentGroup, span: currentCount });
-      currentGroup = originalGroupLabel;
-      currentCount = 1;
-    }
-  });
-  if (currentGroup !== null) displayGroupHeaders.push({ label: currentGroup, span: currentCount });
-
-  const toggleHazard = (h) => {
-    setVisibleHazards(prev => 
-      prev.includes(h) ? prev.filter(item => item !== h) : [...prev, h]
-    );
-  };
-
-  return (
-    <figure className="my-12 flex flex-col gap-6">
-      <figcaption className={`text-xs text-center italic ${
-        darkMode ? 'text-slate-400' : 'text-slate-500'
-      }`}>
-        {caption}
-      </figcaption>
-
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-2">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className={`text-xs font-bold uppercase tracking-widest ${
-            darkMode ? 'text-slate-400' : 'text-slate-500'
-          }`}>
-            Show Hazards:
-          </span>
-          <div className="flex gap-3">
-            {hazardOptions.map(h => (
-              <label key={h} className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={visibleHazards.includes(h)}
-                  onChange={() => toggleHazard(h)}
-                  className={`w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 ${
-                    darkMode ? 'bg-slate-800 border-white/10' : ''
-                  }`}
-                />
-                <span className={`text-xs font-medium transition-colors ${
-                  visibleHazards.includes(h) 
-                    ? (darkMode ? 'text-white' : 'text-slate-900') 
-                    : (darkMode ? 'text-slate-500' : 'text-slate-400')
-                } group-hover:text-blue-500`}>
-                  {h}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <label htmlFor="regency-filter" className={`text-xs font-bold uppercase tracking-widest whitespace-nowrap ${
-            darkMode ? 'text-slate-400' : 'text-slate-500'
-          }`}>
-            Regency/City:
-          </label>
-          <select
-            id="regency-filter"
-            value={selectedRegency}
-            onChange={(e) => setSelectedRegency(e.target.value)}
-            className={`px-4 py-2 text-sm rounded-xl border focus:ring-2 outline-none transition-all cursor-pointer w-full md:w-48 ${
-              darkMode 
-                ? 'bg-slate-900 border-white/10 text-white focus:border-blue-500 focus:ring-blue-500/20' 
-                : 'bg-white border-slate-200 text-slate-900 focus:border-blue-400 focus:ring-blue-200'
-            }`}
-          >
-            {regencies.map(r => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       <div className="w-full overflow-hidden rounded-2xl border" style={{
-        borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
+        borderColor: darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0',
+        backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.02)' : '#ffffff'
       }}>
-        <div className="overflow-auto max-h-[600px]">
-          <table className="min-w-full text-xs md:text-sm border-collapse">
-            <thead className="sticky top-0 z-10">
-              <tr className={darkMode ? 'bg-[#0a1118]' : 'bg-blue-100'}>
-                {displayGroupHeaders.map((gh, i) => (
-                  <th 
-                    key={i} 
-                    colSpan={gh.span}
-                    className={`px-4 py-2 text-center font-black uppercase tracking-widest text-[9px] border-b ${
-                      darkMode ? 'text-blue-300 border-white/10' : 'text-blue-800 border-blue-200'
-                    }`}
-                  >
-                    {gh.label}
-                  </th>
-                ))}
-              </tr>
+        <div className="overflow-auto w-full max-h-[600px]">
+          <table className="min-w-full text-xs md:text-[13px] border-collapse relative">
+            <thead className="sticky top-0 z-10 shadow-sm">
               <tr className={darkMode ? 'bg-[#0a1118]' : 'bg-blue-50'}>
-                {displaySubHeaders.map((sh, i) => (
-                  <th 
-                    key={i} 
-                    className={`px-4 py-3 text-left font-bold uppercase tracking-wider text-[10px] whitespace-nowrap border-b ${
-                      darkMode ? 'text-blue-400 border-white/10' : 'text-blue-700 border-blue-100'
-                    }`}
-                  >
-                    {sh}
+                {headers.map((h, i) => (
+                  <th key={i} className={`px-4 py-3 text-left font-black uppercase tracking-wider text-[10px] whitespace-nowrap ${
+                    darkMode ? 'text-blue-300 border-b border-white/10' : 'text-blue-800 border-b border-blue-200'
+                  }`}>
+                    {h}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {filteredData.length > 0 ? (
-                filteredData.map((row, ri) => (
-                  <tr key={ri} className={`transition-colors ${
-                    ri % 2 === 0
-                      ? (darkMode ? 'bg-white/[0.01]' : 'bg-white')
-                      : (darkMode ? 'bg-white/[0.03]' : 'bg-slate-50/50')
-                  } ${darkMode ? 'hover:bg-blue-500/10' : 'hover:bg-blue-50/80'}`}>
-                    {colIndices.map((ci) => (
-                      <td key={ci} className={`px-4 py-2 border-b whitespace-nowrap ${
-                        darkMode ? 'text-slate-300 border-white/5' : 'text-slate-600 border-slate-100'
-                      } ${ci < 6 ? 'font-medium' : ''}`}>
-                        {row[ci]}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={displaySubHeaders.length} className="px-4 py-10 text-center text-slate-500">
-                    No data matches the selected filters.
-                  </td>
+              {displayedRows.map((row, ri) => (
+                <tr key={ri} className={`transition-colors flex-none ${
+                  ri % 2 === 0
+                    ? (darkMode ? 'bg-white/[0.01]' : 'bg-white')
+                    : (darkMode ? 'bg-white/[0.03]' : 'bg-slate-50/50')
+                } flex-none ${darkMode ? 'hover:bg-blue-500/10' : 'hover:bg-blue-50/50'}`}>
+                  {row.map((cell, ci) => (
+                    <td key={ci} className={`px-4 py-2.5 whitespace-nowrap ${
+                      darkMode ? 'text-slate-300 border-b border-white/5' : 'text-slate-700 border-b border-slate-100'
+                    } ${ci <= 1 ? 'font-medium' : ''}`}>
+                      {cell}
+                    </td>
+                  ))}
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
       </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 mt-2 mb-4">
+          <span className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+            Showing {((page - 1) * rowsPerPage) + 1} to {Math.min(page * rowsPerPage, rows.length)} of {rows.length} entries
+          </span>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                page === 1 
+                  ? (darkMode ? 'bg-white/5 text-slate-600' : 'bg-slate-100 text-slate-400')
+                  : (darkMode ? 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30' : 'bg-blue-100 text-blue-700 hover:bg-blue-200')
+              }`}
+            >
+              Prev
+            </button>
+            <button 
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                page === totalPages 
+                  ? (darkMode ? 'bg-white/5 text-slate-600' : 'bg-slate-100 text-slate-400')
+                  : (darkMode ? 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30' : 'bg-blue-100 text-blue-700 hover:bg-blue-200')
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </figure>
   );
 }
@@ -491,10 +268,10 @@ export default function PopulasiTerdampak() {
 
   useEffect(() => {
     fetch(`${BASE_URL}/B02_TABLE_1.csv`).then(r => r.text()).then(txt => setTable1Data(parseCSV(txt))).catch(console.error);
-    fetch(`${BASE_URL}/B02_TABLE_2.csv`).then(r => r.text()).then(txt => setTable2Data(parseCSV(txt, true))).catch(console.error);
-    fetch(`${BASE_URL}/B02_TABLE_3.csv`).then(r => r.text()).then(txt => setTable3Data(parseCSV(txt, true))).catch(console.error);
-    fetch(`${BASE_URL}/B02_TABLE_4.csv`).then(r => r.text()).then(txt => setTable4Data(parseCSV(txt, true))).catch(console.error);
-    fetch(`${BASE_URL}/B02_TABLE_5.csv`).then(r => r.text()).then(txt => setTable5Data(parseCSV(txt, true))).catch(console.error);
+    fetch(`${BASE_URL}/B02_TABLE_2.csv`).then(r => r.text()).then(txt => setTable2Data(parseCSV(txt))).catch(console.error);
+    fetch(`${BASE_URL}/B02_TABLE_3.csv`).then(r => r.text()).then(txt => setTable3Data(parseCSV(txt))).catch(console.error);
+    fetch(`${BASE_URL}/B02_TABLE_4.csv`).then(r => r.text()).then(txt => setTable4Data(parseCSV(txt))).catch(console.error);
+    fetch(`${BASE_URL}/B02_TABLE_5.csv`).then(r => r.text()).then(txt => setTable5Data(parseCSV(txt))).catch(console.error);
   }, []);
 
   return (
@@ -530,127 +307,69 @@ export default function PopulasiTerdampak() {
           </p>
         </div>
 
-        <article className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-4xl mx-auto">
-          <SectionHeading darkMode={darkMode}>Pendahuluan</SectionHeading>
+        <div className="flex flex-col items-start w-full animate-in fade-in slide-in-from-bottom-4 duration-700 text-justify">
+          <SectionHeading darkMode={darkMode}>PENDAHULUAN</SectionHeading>
+          <Paragraph darkMode={darkMode}>
+            Estimasi populasi terdampak bertujuan untuk mengidentifikasi jumlah orang dalam setiap kategori, termasuk kepala keluarga, jenis kelamin, status disabilitas, dan kelompok usia. Informasi ini dapat digunakan untuk mendukung perencanaan respons bencana, memprioritaskan populasi rentan, serta merancang bantuan yang tepat sasaran dan strategi pemulihan pascabencana. Perhitungan populasi terdampak bencana dilakukan secara proporsi serta untuk bahaya gempa bumi, banjir, dan tsunami. Penilaian ini didasarkan pada model bahaya yang telah dikembangkan dan data populasi yang telah dikumpulkan.
+          </Paragraph>
+          <Paragraph darkMode={darkMode}>
+            Secara umum, perhitungan populasi terdampak bencana dilakukan melalui tiga tahap utama: identifikasi nilai bahaya untuk setiap tingkat desa, perhitungan rasio kategori populasi, dan rasio kelas bahaya. Karena data populasi hanya tersedia di tingkat desa, semua perhitungan dilakukan pada tingkat ini. Proses identifikasi nilai bahaya untuk setiap desa dilakukan dengan bantuan sistem informasi geografis (GIS) melalui analisis spasial tumpang susun (overlay) antara data batas administrasi desa dengan data bahaya. Proses perhitungan rasio kategori populasi dan kelas bahaya dilakukan dengan model matematis sederhana pembagian antara data kategori populasi atau kelas bahaya dibagi dengan total masing-masing data yang terkait.
+          </Paragraph>
+          <Paragraph darkMode={darkMode}>
+            Proses agregasi nilai bahaya terdiri dari dua langkah utama: klasifikasi bahaya dan perhitungan kelas bahaya untuk setiap tingkat desa. Model bahaya gempa bumi diklasifikasikan ke dalam lima tingkat, yaitu no damage, slight, moderate, extensive, dan collapse. Model bahaya banjir dan tsunami diklasifikasikan ke dalam tiga tingkat: rendah, sedang, dan tinggi, berdasarkan kedalaman genangan. Kelas rendah mewakili kedalaman genangan kurang dari 1 meter, kelas sedang berkisar antara 1 hingga 2 meter, dan kelas tinggi mewakili kedalaman lebih dari 2 meter. Model bahaya banjir yang digunakan adalah periode ulang 2, 5, 10, 25, 50, 100, dan 250 tahun serta mencakup skenario tanpa dan dengan perubahan iklim. Nilai bahaya yang telah diklasifikasikan kemudian dihitung untuk setiap tingkat desa, sehingga diperoleh rasio kelas bahaya setiap desa. Hasil perhitungan rasio kelas bahaya ini kemudian dapat digunakan untuk menghitung rasio jumlah orang mengungsi untuk setiap skenario bahaya.
+          </Paragraph>
+          <Paragraph darkMode={darkMode}>
+            Data populasi yang digunakan secara umum memiliki dua kategori, yaitu kategori kelompok disabilitas dan kelompok usia. Kelompok disabilitas terdiri dari empat kelas dan kelompok usia terdiri dari enam kelas. Detail kelas kedua kategori ini ditunjukkan oleh Tabel 1.
+          </Paragraph>
           
-          <Paragraph darkMode={darkMode}>
-            Estimasi populasi terdampak bertujuan untuk mengidentifikasi jumlah orang dalam setiap kategori, termasuk kepala keluarga, jenis kelamin, status disabilitas, dan kelompok usia. Informasi ini dapat digunakan untuk mendukung perencanaan respons bencana, memprioritaskan populasi rentan, serta merancang bantuan yang tepat sasaran dan strategi pemulihan pascabencana. Perhitungan populasi terdampak bencana dilakukan untuk gempa bumi, banjir, dan tsunami. Penilaian ini didasarkan pada model bahaya yang telah dikembangkan dan data populasi yang telah dikumpulkan.
-          </Paragraph>
+          <DataTable parsedData={table1Data} darkMode={darkMode} caption="Tabel 1. Daftar kelas kelompok disabilitas dan kelompok usia" />
 
           <Paragraph darkMode={darkMode}>
-            Secara umum, perhitungan populasi terdampak bencana dilakukan melalui tiga tahap utama: identifikasi nilai bahaya untuk setiap tingkat desa, integrasi data bahaya dan populasi, serta estimasi populasi terdampak. Karena data populasi hanya tersedia di tingkat desa, semua perhitungan dilakukan pada tingkat ini. Integrasi data bahaya dan populasi dilakukan dengan menggabungkan tabel yang berisi informasi tingkat bahaya dan data populasi untuk setiap desa. Kumpulan data terintegrasi tersebut kemudian digunakan untuk merangkum jumlah orang yang terdampak untuk setiap kelas bahaya dan setiap kategori populasi.
+            Dalam kajian ini, perhitungan estimasi penduduk mengungsi didasarkan pada rasio penduduk untuk setiap kategori. Karena terdapat dua kategori populasi, maka perlu dilakukan kombinasi antarkategori. Hasil kombinasi empat kelas kelompok disabilitas dan enam kelas kelompok usia adalah 24 kelas kelompok kombinasi. Detail kelas kelompok kombinasi ditunjukkan oleh Tabel 2. Kode kelas kombinasi telah dibuat untuk memudahkan pembacaan kelas kombinasi. Sebagai contoh, kode D2A4 adalah kode untuk rasio wanita penyandang disabilitas pada kelompok usia middle age (40 - 59 tahun).
           </Paragraph>
+
+          <DataTable parsedData={table2Data} darkMode={darkMode} caption="Tabel 2. Daftar kelas kelompok kombinasi" />
 
           <Paragraph darkMode={darkMode}>
-            Proses agregasi nilai bahaya terdiri dari dua langkah utama: klasifikasi bahaya dan perhitungan kelas bahaya untuk setiap tingkat desa. Model bahaya gempa bumi diklasifikasikan ke dalam lima tingkat, yaitu tidak ada kerusakan, ringan, sedang, luas, dan runtuh. Model bahaya banjir dan tsunami diklasifikasikan ke dalam tiga tingkat: rendah, sedang, dan tinggi, berdasarkan kedalaman genangan. Kelas rendah mewakili kedalaman genangan kurang dari 1 meter, kelas sedang berkisar antara 1 hingga 2 meter, dan kelas tinggi mewakili kedalaman lebih dari 2 meter. Model bahaya banjir yang digunakan adalah periode ulang 25 tahun dan 250 tahun serta mencakup skenario perubahan iklim. Nilai bahaya yang telah diklasifikasikan kemudian dihitung untuk setiap tingkat desa, sehingga persentase atau proporsi kelas bahaya dapat diidentifikasi untuk setiap desa.
+            Tahap selanjutnya adalah integrasi data rasio populasi, rasio kelas bahaya, dan rasio jumlah orang mengungsi. Tahap ini dilakukan menggunakan metode penggabungan tabel (join table) yang memerlukan pengidentifikasi unik untuk menghubungkan kumpulan data tersebut. Dalam studi ini, kode desa atau ID desa digunakan sebagai pengidentifikasi untuk menghubungkan data kelas bahaya dengan data populasi di tingkat desa. Proses ini menghasilkan kumpulan data yang berisi informasi rasio kelas bahaya dan populasi untuk setiap desa, yang kemudian digunakan untuk menghitung jumlah orang di setiap kategori yang terpapar pada setiap jenis bahaya.
           </Paragraph>
-
           <Paragraph darkMode={darkMode}>
-            Integrasi data bahaya dan populasi dilakukan menggunakan metode penggabungan tabel (join table) yang memerlukan pengidentifikasi unik untuk menghubungkan kedua kumpulan data tersebut. Dalam studi ini, kode desa atau ID desa digunakan sebagai pengidentifikasi untuk menghubungkan data kelas bahaya dengan data populasi di tingkat desa. Proses ini menghasilkan kumpulan data yang berisi informasi proporsi tingkat bahaya dan populasi untuk setiap desa, yang kemudian digunakan untuk menghitung jumlah orang yang terpapar pada setiap jenis bahaya.
+            Hasil estimasi populasi terpapar selanjutnya digunakan untuk memperkirakan jumlah orang yang mungkin perlu dievakuasi saat terjadi bencana. Untuk bahaya gempa bumi, penduduk yang berada di area yang diklasifikasikan sebagai tingkat sedang hingga runtuh dianggap perlu dievakuasi. Asumsi ini mengikuti standar Federal Emergency Management Agency (FEMA), yang menunjukkan bahwa bangunan dengan kerusakan sedang secara struktural tidak aman karena retakan yang signifikan dan risiko kegagalan struktur (Milyardi dkk., 2025). Untuk bahaya banjir dan tsunami, penduduk di area yang diklasifikasikan sebagai tingkat sedang dan tinggi dianggap perlu dievakuasi. Ambang batas kelas bahaya banjir yang digunakan untuk menentukan kebutuhan evakuasi didasarkan pada studi kasus peristiwa banjir di Bali pada September 2025. Informasi terkait evakuasi selama peristiwa banjir September 2025 di Bali disajikan dalam Tabel 3.
           </Paragraph>
 
-          <Paragraph darkMode={darkMode}>
-            Hasil estimasi populasi terpapar selanjutnya digunakan untuk memperkirakan jumlah orang yang mungkin perlu dievakuasi saat terjadi bencana. Untuk bahaya gempa bumi, penduduk yang berada di area yang diklasifikasikan sebagai tingkat sedang hingga runtuh dianggap perlu dievakuasi. Asumsi ini mengikuti standar Federal Emergency Management Agency (FEMA), yang menunjukkan bahwa bangunan dengan kerusakan sedang secara struktural tidak aman karena retakan yang signifikan dan risiko kegagalan struktur (Milyardi dkk., 2025). Untuk bahaya banjir dan tsunami, penduduk di area yang diklasifikasikan sebagai tingkat sedang dan tinggi dianggap perlu dievakuasi. Ambang batas kelas bahaya banjir yang digunakan untuk menentukan kebutuhan evakuasi didasarkan pada studi kasus peristiwa banjir di Bali pada September 2025. Informasi terkait evakuasi selama peristiwa banjir September 2025 di Bali disajikan dalam Tabel 1.
-          </Paragraph>
-
-          <DataTable 
-            parsedData={table1Data} 
-            caption="Tabel 1. Data evakuasi korban banjir di Bali pada September 2025" 
-            darkMode={darkMode} 
-          />
+          <DataTable parsedData={table3Data} darkMode={darkMode} caption="Tabel 3. Data evakuasi korban banjir di Bali pada September 2025" />
 
           <Paragraph darkMode={darkMode}>
             Tabel di atas menyajikan laporan peristiwa banjir di Bali pada September 2025 sebagaimana didokumentasikan oleh Badan Penanggulangan Bencana Daerah (BPBD). Informasi tersebut mencakup kabupaten dan kota yang terdampak, lokasi pengungsian, dan jumlah hari evakuasi. Karena kurangnya data lapangan yang terperinci mengenai kedalaman banjir aktual, estimasi kedalaman banjir diperoleh dari model bahaya banjir yang dikembangkan dalam studi ini, sebagaimana ditunjukkan pada kolom estimasi kedalaman banjir. Estimasi kedalaman banjir dihitung sebagai kedalaman banjir rata-rata untuk setiap desa di mana lokasi pengungsian diidentifikasi. Hasilnya menunjukkan bahwa kedalaman banjir selama peristiwa tersebut berkisar antara 0,71 m hingga 5,59 m, dengan kedalaman rata-rata 1,72 m. Berdasarkan estimasi tersebut, ambang batas kedalaman banjir sebesar 1 meter diterapkan untuk mengklasifikasikan penduduk yang memerlukan evakuasi.
           </Paragraph>
-
           <Paragraph darkMode={darkMode}>
             Dalam studi ini, estimasi populasi terpapar idealnya dilakukan pada tingkat bangunan untuk memberikan hasil yang lebih terperinci. Namun, karena keterbatasan ketersediaan data tingkat bangunan, analisis hanya dilakukan pada tingkat desa. Ambang batas yang digunakan untuk mengidentifikasi populasi yang memerlukan evakuasi didasarkan pada beberapa referensi dan pendekatan berbasis kasus. Untuk bahaya gempa bumi, ambang batas mengikuti standar FEMA yang menunjukkan bahwa pada tingkat kerusakan sedang, bangunan dianggap tidak aman sehingga penduduk diharuskan untuk mengevakuasi diri. Untuk bahaya banjir, ambang batas ditentukan berdasarkan peristiwa banjir di Bali pada September 2025, di mana penduduk di area yang diklasifikasikan sebagai bahaya sedang atau dengan kedalaman banjir lebih dari 1 meter dianggap perlu dievakuasi. Demikian pula, ambang batas evakuasi untuk bahaya tsunami diturunkan menggunakan pendekatan yang sama dengan banjir, karena kedua model bahaya tersebut menggunakan kedalaman air sebagai indikator utama dampak.
           </Paragraph>
 
-          <SectionHeading darkMode={darkMode}>Hasil</SectionHeading>
-
+          <SectionHeading darkMode={darkMode}>HASIL</SectionHeading>
           <Paragraph darkMode={darkMode}>
-            Tabel 2 menyajikan hasil perhitungan proporsi kelas bahaya banjir untuk beberapa sampel desa di Provinsi Bali. Analisis ini menggunakan empat model bahaya banjir yang dibedakan berdasarkan periode ulang 25 tahun dan 250 tahun, masing-masing dipertimbangkan dengan dan tanpa pengaruh perubahan iklim. Namun, contoh tabel yang disajikan dalam bagian ini hanya menunjukkan hasil untuk periode ulang 25 tahun tanpa efek perubahan iklim. Dalam setiap model bahaya, kategori No Class atau No Damage didefinisikan untuk mewakili area yang tidak memiliki potensi bahaya banjir. Proporsi yang dihitung menunjukkan bahwa kategori No Class atau No Damage cenderung mendominasi dibandingkan dengan kelas bahaya lainnya, yang menunjukkan bahwa sebagian besar area di desa-desa sampel relatif aman dari bahaya banjir dalam skenario ini.
+            Tabel 4 menyajikan hasil perhitungan rasio penduduk mengungsi sesuai skenario bahaya di setiap desa di Provinsi Bali. Dalam setiap model bahaya, kategori No Class atau No Damage didefinisikan untuk mewakili area yang tidak memiliki potensi bahaya banjir. Proporsi yang dihitung menunjukkan bahwa kategori No Class atau No Damage cenderung mendominasi dibandingkan dengan kelas bahaya lainnya, yang menunjukkan bahwa sebagian besar area di desa-desa relatif aman. Dalam kajian ini, area yang diklasifikasikan dalam tingkat bahaya banjir dan tsunami sedang dan tinggi dianggap sebagai zona dimana populasi harus mengevakuasi diri. Sementara itu, untuk bahaya gempa bumi, area yang dikategorikan sebagai moderate, extensive, dan collapse dianggap sebagai zona yang memerlukan evakuasi populasi.
           </Paragraph>
 
-          <ComplexDataTable 
-            parsedData={table2Data} 
-            caption="Tabel 2. Proporsi kelas bahaya untuk setiap desa di Bali (sampel)" 
-            darkMode={darkMode} 
-          />
+          <DataTable parsedData={table4Data} darkMode={darkMode} caption="Tabel 4. Rasio penduduk mengungsi setiap skenario bahaya untuk setiap desa di Bali" />
 
           <Paragraph darkMode={darkMode}>
-            Proporsi kelas bahaya yang telah dihitung selanjutnya direkapitulasi untuk memperkirakan proporsi populasi yang diharuskan mengevakuasi diri. Dalam analisis ini, area yang diklasifikasikan dalam tingkat bahaya banjir dan tsunami sedang dan tinggi dianggap sebagai zona dimana populasi harus mengevakuasi diri. Sementara itu, untuk bahaya gempa bumi, area yang dikategorikan sebagai sedang, luas, dan runtuh dianggap sebagai zona yang memerlukan evakuasi populasi. Hasil rekapitulasi proporsi kelas bahaya yang mewakili populasi yang mengevakuasi diri disajikan dalam Tabel 3.
+            Setelah rasio populasi yang mengevakuasi diri diperoleh untuk setiap desa dan setiap jenis bahaya, langkah selanjutnya adalah menghitung rasio penduduk terdampak untuk setiap kelompok kombinasi antara kelompok disabilitas dan kelompok usia. Hasil perhitungan rasio penduduk mengungsi ditunjukkan oleh Tabel 5.
           </Paragraph>
 
-          <ComplexDataTable 
-            parsedData={table3Data} 
-            caption="Tabel 3. Proporsi pengungsian di desa (sampel)" 
-            darkMode={darkMode} 
-          />
+          <DataTable parsedData={table5Data} darkMode={darkMode} caption="Tabel 5. Rasio penduduk menurut kelompok kombinasi (kelompok disabilitas dan kelompok usia) setiap desa di Bali" />
 
           <Paragraph darkMode={darkMode}>
-            Setelah proporsi populasi yang mengevakuasi diri diperoleh untuk setiap desa dan setiap jenis bahaya, langkah selanjutnya adalah menghitung jumlah orang yang terdampak. Perhitungan ini dilakukan dengan mengalikan total populasi setiap desa dengan proporsi populasi yang mengevakuasi diri. Perhitungan tersebut diterapkan pada semua kelompok populasi, termasuk rumah tangga, jenis kelamin, kelompok usia, dan penyandang disabilitas. Hasil perhitungan populasi yang mengevakuasi diri dari total populasi disajikan pada Gambar 1 dan Gambar 2.
+            Berdasarkan hasil perhitungan rasio penduduk mengungsi (Tabel 4) dan rasio penduduk menurut kelompok kombinasi (Tabel 5), dapat dihitung estimasi populasi terdampak bencana. Estimasi ini dapat dilakukan dengan mengalikan jumlah penduduk secara keseluruhan dengan rasio penduduk mengungsi dan rasio penduduk menurut kelmpok kombinasi.
           </Paragraph>
 
-          <Figure
-            src={`${BASE_URL}/B02_FIGURE_1.png`}
-            caption="Gambar 1. Total populasi terpapar oleh bahaya tsunami dan gempa bumi"
-            darkMode={darkMode}
-          />
-
-          <Paragraph darkMode={darkMode}>
-            Jumlah orang yang diharuskan mengevakuasi diri akibat bahaya tsunami sebagian besar terkonsentrasi di wilayah pesisir Bali, terutama di bagian selatan pulau. Di wilayah-wilayah ini, jumlah pengungsi akibat bahaya tsunami dapat melebihi 3.000 orang. Sebaliknya, jumlah orang yang mengevakuasi diri akibat bahaya gempa bumi cenderung tersebar lebih merata di seluruh Bali.
-          </Paragraph>
-
-          <Figure
-            src={`${BASE_URL}/B02_FIGURE_2.png`}
-            caption="Gambar 2. Total populasi terpapar oleh bahaya banjir"
-            darkMode={darkMode}
-          />
-
-          <Paragraph darkMode={darkMode}>
-            Gambar di atas mengilustrasikan distribusi spasial jumlah orang yang diharuskan mengevakuasi diri akibat bahaya banjir pada periode ulang dan skenario perubahan iklim yang berbeda. Intensitas warna mewakili jumlah pengungsi, di mana warna yang lebih gelap menunjukkan populasi pengungsi yang lebih besar dibandingkan dengan warna yang lebih terang. Hasil penelitian menunjukkan bahwa jumlah pengungsi meningkat seiring dengan periode ulang yang lebih lama. Selain itu, perbandingan antar skenario menunjukkan bahwa jumlah pengungsi pada skenario perubahan iklim lebih tinggi dibandingkan pada skenario tanpa perubahan iklim. Peningkatan ini disebabkan oleh hasil pemodelan banjir yang menunjukkan tingkat bahaya banjir yang lebih tinggi ketika efek perubahan iklim dipertimbangkan.
-          </Paragraph>
-        </article>
-
-        {/* FULL DATA TABLES section */}
-        <div className="mt-20 pt-10 border-t border-dashed border-slate-300 dark:border-white/10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          <div className="max-w-4xl mx-auto">
-            <h2 className={`text-xl md:text-2xl font-black uppercase tracking-[0.2em] text-center mb-8 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-              Full Dataset Analysis
-            </h2>
+          <SectionHeading darkMode={darkMode}>REFERENSI</SectionHeading>
+          <div className="w-full text-left">
             <Paragraph darkMode={darkMode}>
-              Dataset lengkap berikut menyajikan rincian persentase klasifikasi bahaya dan estimasi jumlah orang yang terdampak untuk seluruh desa di wilayah kajian. Gunakan filter untuk menelusuri wilayah atau bahaya tertentu.
+              Milyardi, R., Pribadi, K. S., Abduh, M., Meilano, I., Lim, E., Hs, H., & Ansyari, A. (2025). Rehabilitation and reconstruction cost drivers in earthquake-affected buildings: a damage-level-based analysis in Indonesia. Bulletin of Earthquake Engineering, 23(13), 5469–5493. <a href="https://doi.org/10.1007/s10518-025-02243-5" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">https://doi.org/10.1007/s10518-025-02243-5</a>
             </Paragraph>
           </div>
-
-          <EnhancedDataTable 
-            parsedData={table4Data} 
-            caption="Tabel 4. Dataset Lengkap: Persentase klasifikasi paparan bahaya di tingkat Desa"
-            darkMode={darkMode}
-          />
-
-          <EnhancedDataTable 
-            parsedData={table5Data} 
-            caption="Tabel 5. Dataset Lengkap: Estimasi jumlah populasi terdampak di tingkat Desa"
-            darkMode={darkMode}
-            isTable5={true}
-          />
         </div>
-
-        <article className="max-w-4xl mx-auto mt-20">
-          <SectionHeading darkMode={darkMode}>Referensi</SectionHeading>
-          <div className={`p-6 rounded-2xl border text-sm leading-relaxed ${darkMode ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-white border-slate-200 text-slate-600 shadow-sm'}`}>
-            <p>
-              Milyardi, R., Pribadi, K. S., Abduh, M., Meilano, I., Lim, E., Hs, H., &amp; Ansyari, A. (2025). Rehabilitation and reconstruction cost drivers in earthquake-affected buildings: a damage-level-based analysis in Indonesia.{' '}
-              <em>Bulletin of Earthquake Engineering</em>, 23(13), 5469–5493.{' '}
-              <a href="https://doi.org/10.1007/s10518-025-02243-5" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline break-all">
-                https://doi.org/10.1007/s10518-025-02243-5
-              </a>
-            </p>
-          </div>
-        </article>
       </main>
     </div>
   );
